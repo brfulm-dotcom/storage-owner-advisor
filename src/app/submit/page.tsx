@@ -21,6 +21,8 @@ export default function SubmitPage() {
     description: '',
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   // Fetch categories from Supabase on mount
   useEffect(() => {
@@ -44,13 +46,40 @@ export default function SubmitPage() {
       ...prev,
       [name]: value,
     }));
+    // Clear error when user starts typing again
+    if (error) setError('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, log the submission.
-    // Later you can save to a "submissions" table in Supabase.
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+    setError('');
+
+    // Auto-add https:// if missing
+    let website = formData.website.trim();
+    if (website && !website.startsWith('http://') && !website.startsWith('https://')) {
+      website = 'https://' + website;
+    }
+
+    const { error: insertError } = await supabase
+      .from('submissions')
+      .insert({
+        company_name: formData.companyName,
+        website: website,
+        category_slug: formData.category,
+        contact_email: formData.contactEmail,
+        phone: formData.phone,
+        description: formData.description,
+      });
+
+    setIsSubmitting(false);
+
+    if (insertError) {
+      setError('Something went wrong. Please try again.');
+      console.error('Submission error:', insertError);
+      return;
+    }
+
     setIsSubmitted(true);
     setTimeout(() => {
       setIsSubmitted(false);
@@ -62,7 +91,7 @@ export default function SubmitPage() {
         phone: '',
         description: '',
       });
-    }, 3000);
+    }, 5000);
   };
 
   return (
@@ -113,9 +142,9 @@ export default function SubmitPage() {
                     <label htmlFor="website" className="block text-sm font-semibold text-gray-900 mb-2">
                       Website *
                     </label>
-                    <input type="url" id="website" name="website" value={formData.website} onChange={handleChange} required
+                    <input type="text" id="website" name="website" value={formData.website} onChange={handleChange} required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="https://yourcompany.com" />
+                      placeholder="www.yourcompany.com" />
                   </div>
                   <div>
                     <label htmlFor="category" className="block text-sm font-semibold text-gray-900 mb-2">
@@ -153,9 +182,16 @@ export default function SubmitPage() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Tell us about your service and why storage facility owners should consider your solution..." />
                   </div>
-                  <button type="submit"
-                    className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors">
-                    Submit Vendor Profile
+
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
+                      {error}
+                    </div>
+                  )}
+
+                  <button type="submit" disabled={isSubmitting}
+                    className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed">
+                    {isSubmitting ? 'Submitting...' : 'Submit Vendor Profile'}
                   </button>
                 </form>
               )}
