@@ -1,17 +1,20 @@
 // =============================================================
-// SITEMAP GENERATOR
-// This automatically creates a sitemap.xml for Google.
-// Google uses this to discover and index all your pages.
-// Every time you add a vendor or category, it's included.
+// SITEMAP GENERATOR (Supabase version)
+// Now pulls categories and vendors from the database.
 // =============================================================
 
 import { MetadataRoute } from 'next';
-import { categories } from '@/data/categories';
-import { vendors } from '@/data/vendors';
+import { getCategories, getVendors } from '@/lib/supabase';
 
 const BASE_URL = 'https://www.storageowneradvisor.com';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Fetch data from Supabase
+  const [categories, vendors] = await Promise.all([
+    getCategories(),
+    getVendors(),
+  ]);
+
   // Static pages
   const staticPages = [
     { url: BASE_URL, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 1.0 },
@@ -21,7 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/search`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.6 },
   ];
 
-  // Category pages (high priority — these are your money pages for SEO)
+  // Category pages
   const categoryPages = categories.map((cat) => ({
     url: `${BASE_URL}/category/${cat.slug}`,
     lastModified: new Date(),
@@ -32,7 +35,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Vendor pages
   const vendorPages = vendors.map((vendor) => ({
     url: `${BASE_URL}/vendor/${vendor.slug}`,
-    lastModified: new Date(),
+    lastModified: vendor.updated_at ? new Date(vendor.updated_at) : new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.8,
   }));

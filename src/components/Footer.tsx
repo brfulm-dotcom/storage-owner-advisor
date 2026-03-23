@@ -1,12 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { categories } from '@/data/categories';
+import { createClient } from '@supabase/supabase-js';
+import type { Category } from '@/lib/supabase';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [topCategories, setTopCategories] = useState<Category[]>([]);
+
+  // Fetch categories from Supabase on mount
+  useEffect(() => {
+    async function loadCategories() {
+      const { data } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name')
+        .limit(6);
+      if (data) setTopCategories(data);
+    }
+    loadCategories();
+  }, []);
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,9 +36,6 @@ export default function Footer() {
       setTimeout(() => setSubscribed(false), 3000);
     }
   };
-
-  // Get top 6 categories
-  const topCategories = categories.slice(0, 6);
 
   return (
     <footer className="bg-gray-900 text-gray-300 pt-16 pb-8">
@@ -113,7 +130,7 @@ export default function Footer() {
               info@storageowneradvisor.com
             </a>
             <p className="text-sm text-gray-400 mt-4">
-              📞 1-800-STORAGE
+              1-800-STORAGE
             </p>
           </div>
         </div>

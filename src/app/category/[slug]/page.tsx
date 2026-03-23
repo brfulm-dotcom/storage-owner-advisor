@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { categories, getCategoryBySlug } from '@/data/categories';
-import { getVendorsByCategory } from '@/data/vendors';
+import { getCategoryBySlug, getVendorsByCategory, getCategorySlugs } from '@/lib/supabase';
 import VendorCard from '@/components/VendorCard';
+
+// Revalidate every 60 seconds (picks up new vendors without redeploy)
+export const revalidate = 60;
 
 interface CategoryPageProps {
   params: Promise<{
@@ -11,16 +13,15 @@ interface CategoryPageProps {
 }
 
 export async function generateStaticParams() {
-  return categories.map((category) => ({
-    slug: category.slug,
-  }));
+  const slugs = await getCategorySlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata(
   props: CategoryPageProps
 ): Promise<Metadata> {
   const params = await props.params;
-  const category = getCategoryBySlug(params.slug);
+  const category = await getCategoryBySlug(params.slug);
 
   if (!category) {
     return {
@@ -42,7 +43,7 @@ export async function generateMetadata(
 
 export default async function CategoryPage(props: CategoryPageProps) {
   const params = await props.params;
-  const category = getCategoryBySlug(params.slug);
+  const category = await getCategoryBySlug(params.slug);
 
   if (!category) {
     return (
@@ -53,7 +54,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
               Category Not Found
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              The category you're looking for doesn't exist.
+              The category you&apos;re looking for doesn&apos;t exist.
             </p>
             <Link
               href="/"
@@ -67,7 +68,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
     );
   }
 
-  const vendors = getVendorsByCategory(category.slug);
+  const vendors = await getVendorsByCategory(category.slug);
 
   return (
     <div className="min-h-screen bg-gray-50">

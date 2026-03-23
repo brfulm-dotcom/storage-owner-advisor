@@ -1,22 +1,19 @@
 // =============================================================
-// SEO UTILITIES
-// Helper functions for generating structured data (JSON-LD).
-// This is what makes your pages show up with rich snippets
-// in Google (star ratings, business info, etc.)
+// SEO UTILITIES (Supabase version)
+// Uses the new database types instead of flat file types.
 // =============================================================
 
-import { Vendor } from '@/data/vendors';
-import { Category } from '@/data/categories';
+import { Vendor, Category } from '@/lib/supabase';
 
 const BASE_URL = 'https://www.storageowneradvisor.com';
 
-// Generates JSON-LD for a vendor (shows as a Product/Service in Google)
+// Generates JSON-LD for a vendor
 export function generateVendorJsonLd(vendor: Vendor) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: vendor.name,
-    description: vendor.shortDescription,
+    description: vendor.short_description,
     url: `${BASE_URL}/vendor/${vendor.slug}`,
     brand: {
       '@type': 'Organization',
@@ -26,7 +23,7 @@ export function generateVendorJsonLd(vendor: Vendor) {
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: vendor.rating,
-      reviewCount: vendor.reviewCount,
+      reviewCount: vendor.review_count,
       bestRating: 5,
       worstRating: 1,
     },
@@ -39,7 +36,7 @@ export function generateVendorJsonLd(vendor: Vendor) {
   };
 }
 
-// Generates JSON-LD for a category page (shows as a CollectionPage in Google)
+// Generates JSON-LD for a category page
 export function generateCategoryJsonLd(category: Category) {
   return {
     '@context': 'https://schema.org',
@@ -50,7 +47,7 @@ export function generateCategoryJsonLd(category: Category) {
     mainEntity: {
       '@type': 'ItemList',
       name: category.name,
-      numberOfItems: category.vendorCount,
+      numberOfItems: category.vendor_count,
     },
   };
 }

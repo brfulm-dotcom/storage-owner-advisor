@@ -2,19 +2,35 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
 import VendorCard from '@/components/VendorCard';
-import { searchVendors, vendors as allVendors, type Vendor } from '@/data/vendors';
+import type { Vendor } from '@/lib/supabase';
+
+// Client-side Supabase instance for search
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Vendor[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      const found = searchVendors(query);
-      setResults(found);
+      const { data, error } = await supabase
+        .from('vendors')
+        .select('*')
+        .or(`name.ilike.%${query}%,short_description.ilike.%${query}%`)
+        .order('rating', { ascending: false });
+
+      if (!error && data) {
+        setResults(data);
+      } else {
+        setResults([]);
+      }
       setHasSearched(true);
     }
   };

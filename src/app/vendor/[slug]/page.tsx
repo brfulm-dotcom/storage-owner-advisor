@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { vendors, getVendorBySlug } from '@/data/vendors';
-import { getCategoryBySlug } from '@/data/categories';
+import { getVendorBySlug, getCategoryBySlug, getVendorSlugs } from '@/lib/supabase';
 import StarRating from '@/components/StarRating';
+
+// Revalidate every 60 seconds
+export const revalidate = 60;
 
 interface VendorPageProps {
   params: Promise<{
@@ -11,16 +13,15 @@ interface VendorPageProps {
 }
 
 export async function generateStaticParams() {
-  return vendors.map((vendor) => ({
-    slug: vendor.slug,
-  }));
+  const slugs = await getVendorSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata(
   props: VendorPageProps
 ): Promise<Metadata> {
   const params = await props.params;
-  const vendor = getVendorBySlug(params.slug);
+  const vendor = await getVendorBySlug(params.slug);
 
   if (!vendor) {
     return {
@@ -31,10 +32,10 @@ export async function generateMetadata(
 
   return {
     title: `${vendor.name} - StorageOwnerAdvisor`,
-    description: vendor.shortDescription,
+    description: vendor.short_description,
     openGraph: {
       title: `${vendor.name} - StorageOwnerAdvisor`,
-      description: vendor.shortDescription,
+      description: vendor.short_description,
       type: 'website',
     },
   };
@@ -42,7 +43,7 @@ export async function generateMetadata(
 
 export default async function VendorPage(props: VendorPageProps) {
   const params = await props.params;
-  const vendor = getVendorBySlug(params.slug);
+  const vendor = await getVendorBySlug(params.slug);
 
   if (!vendor) {
     return (
@@ -53,7 +54,7 @@ export default async function VendorPage(props: VendorPageProps) {
               Vendor Not Found
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              The vendor you're looking for doesn't exist.
+              The vendor you&apos;re looking for doesn&apos;t exist.
             </p>
             <Link
               href="/"
@@ -67,7 +68,7 @@ export default async function VendorPage(props: VendorPageProps) {
     );
   }
 
-  const category = getCategoryBySlug(vendor.categorySlug);
+  const category = await getCategoryBySlug(vendor.category_slug);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -126,9 +127,9 @@ export default async function VendorPage(props: VendorPageProps) {
                 {/* Rating */}
                 <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-200">
                   <div className="flex items-center gap-2">
-                    <StarRating rating={vendor.rating} reviewCount={vendor.reviewCount} />
+                    <StarRating rating={vendor.rating} reviewCount={vendor.review_count} />
                     <span className="text-gray-600">
-                      ({vendor.reviewCount} reviews)
+                      ({vendor.review_count} reviews)
                     </span>
                   </div>
                 </div>
@@ -139,7 +140,7 @@ export default async function VendorPage(props: VendorPageProps) {
                     Overview
                   </h2>
                   <p className="text-lg text-gray-700 leading-relaxed">
-                    {vendor.fullDescription}
+                    {vendor.full_description}
                   </p>
                 </div>
 
@@ -229,7 +230,7 @@ export default async function VendorPage(props: VendorPageProps) {
               {/* CTA Button */}
               <div className="bg-white rounded-lg shadow-sm p-8 mb-8 sticky top-6">
                 <a
-                  href={vendor.affiliateUrl || vendor.website}
+                  href={vendor.affiliate_url || vendor.website}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block w-full bg-blue-600 text-white text-center px-6 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors mb-4"
@@ -242,18 +243,18 @@ export default async function VendorPage(props: VendorPageProps) {
               </div>
 
               {/* Company Info */}
-              {(vendor.yearFounded || vendor.headquarters) && (
+              {(vendor.year_founded || vendor.headquarters) && (
                 <div className="bg-white rounded-lg shadow-sm p-8">
                   <h3 className="text-lg font-bold text-gray-900 mb-4">
                     Company Info
                   </h3>
                   <div className="space-y-4">
-                    {vendor.yearFounded && (
+                    {vendor.year_founded && (
                       <div>
                         <p className="text-sm text-gray-600 font-semibold mb-1">
                           Founded
                         </p>
-                        <p className="text-gray-900">{vendor.yearFounded}</p>
+                        <p className="text-gray-900">{vendor.year_founded}</p>
                       </div>
                     )}
                     {vendor.headquarters && (

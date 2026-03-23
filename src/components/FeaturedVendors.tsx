@@ -1,12 +1,18 @@
-import { getFeaturedVendors } from '@/data/vendors';
+import { getFeaturedVendors, getCategories } from '@/lib/supabase';
 import VendorCard from '@/components/VendorCard';
 
-export default function FeaturedVendors() {
-  const featuredVendors = getFeaturedVendors();
+export default async function FeaturedVendors() {
+  const [featuredVendors, categories] = await Promise.all([
+    getFeaturedVendors(),
+    getCategories(),
+  ]);
 
   if (featuredVendors.length === 0) {
     return null;
   }
+
+  // Build a lookup map for category names
+  const categoryMap = new Map(categories.map((c) => [c.slug, c.name]));
 
   return (
     <section className="py-16 sm:py-20 md:py-24">
@@ -24,7 +30,11 @@ export default function FeaturedVendors() {
         {/* Vendors Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {featuredVendors.map((vendor) => (
-            <VendorCard key={vendor.slug} vendor={vendor} />
+            <VendorCard
+              key={vendor.slug}
+              vendor={vendor}
+              categoryName={categoryMap.get(vendor.category_slug)}
+            />
           ))}
         </div>
       </div>

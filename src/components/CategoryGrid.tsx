@@ -1,7 +1,9 @@
-import { categories } from '@/data/categories';
+import { getCategories } from '@/lib/supabase';
 import CategoryCard from '@/components/CategoryCard';
 
-export default function CategoryGrid() {
+export default async function CategoryGrid() {
+  const categories = await getCategories();
+
   return (
     <section className="py-16 sm:py-20 md:py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,15 +1,14 @@
 import Link from 'next/link';
-import { Vendor } from '@/data/vendors';
-import { getCategoryBySlug } from '@/data/categories';
+import { Vendor, getCategoryBySlug } from '@/lib/supabase';
 import StarRating from '@/components/StarRating';
 
 interface VendorCardProps {
   vendor: Vendor;
+  categoryName?: string;
 }
 
-export default function VendorCard({ vendor }: VendorCardProps) {
+export default function VendorCard({ vendor, categoryName }: VendorCardProps) {
   const isFeatured = vendor.tier === 'featured' || vendor.tier === 'premium';
-  const category = getCategoryBySlug(vendor.categorySlug);
 
   return (
     <div
@@ -34,22 +33,22 @@ export default function VendorCard({ vendor }: VendorCardProps) {
       </h3>
 
       {/* Category Badge */}
-      {category && (
+      {categoryName && (
         <div className="mb-3">
           <span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
-            {category.name}
+            {categoryName}
           </span>
         </div>
       )}
 
       {/* Description */}
       <p className="text-sm text-gray-600 mb-4 line-clamp-2 min-h-[2.5rem]">
-        {vendor.shortDescription}
+        {vendor.short_description}
       </p>
 
       {/* Rating */}
       <div className="mb-4">
-        <StarRating rating={vendor.rating} reviewCount={vendor.reviewCount} />
+        <StarRating rating={vendor.rating} reviewCount={vendor.review_count} />
       </div>
 
       {/* Pricing */}
@@ -68,7 +67,7 @@ export default function VendorCard({ vendor }: VendorCardProps) {
           View Details →
         </Link>
         <a
-          href={vendor.affiliateUrl || vendor.website}
+          href={vendor.affiliate_url || vendor.website}
           target="_blank"
           rel="noopener noreferrer"
           className="block text-center py-2 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"

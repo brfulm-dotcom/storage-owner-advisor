@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static export for easy deployment
-  // Remove this line if you want server-side rendering later
-  output: 'export',
+  // REMOVED: output: 'export'
+  // With Supabase, we use ISR (Incremental Static Regeneration)
+  // Pages are still fast (statically generated) but automatically
+  // pick up new vendors from the database every 60 seconds.
+  // No more redeploying just to add a vendor!
   images: {
     unoptimized: true,
   },
