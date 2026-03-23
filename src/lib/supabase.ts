@@ -45,6 +45,9 @@ export interface Vendor {
   affiliate_url?: string | null;
   year_founded?: number | null;
   headquarters?: string | null;
+  city?: string | null;
+  state?: string | null;
+  service_area: 'local' | 'national';
   created_at?: string;
   updated_at?: string;
 }
