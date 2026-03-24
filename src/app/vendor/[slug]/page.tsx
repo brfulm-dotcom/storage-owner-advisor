@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getVendorBySlug, getCategoryBySlug, getVendorSlugs } from '@/lib/supabase';
 import StarRating from '@/components/StarRating';
+import ClaimListing from '@/components/ClaimListing';
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -240,6 +241,11 @@ export default async function VendorPage(props: VendorPageProps) {
                 <p className="text-sm text-gray-600 text-center">
                   Opens in a new window
                 </p>
+              </div>
+
+              {/* Claim This Listing */}
+              <div className="mb-8">
+                <ClaimListing vendorSlug={vendor.slug} vendorName={vendor.name} />
               </div>
 
               {/* Company Info */}
