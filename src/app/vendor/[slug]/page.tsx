@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getVendorBySlug, getCategoryBySlug, getVendorSlugs } from '@/lib/supabase';
 import StarRating from '@/components/StarRating';
 import ClaimListing from '@/components/ClaimListing';
+import { generateVendorJsonLd, generateVendorBreadcrumbJsonLd, generateLocalBusinessJsonLd } from '@/lib/seo';
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -70,9 +71,27 @@ export default async function VendorPage(props: VendorPageProps) {
   }
 
   const category = await getCategoryBySlug(vendor.category_slug);
+  const jsonLd = generateVendorJsonLd(vendor);
+  const breadcrumbJsonLd = generateVendorBreadcrumbJsonLd(vendor, category);
+  const localBusinessJsonLd = generateLocalBusinessJsonLd(vendor);
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      {localBusinessJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+        />
+      )}
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

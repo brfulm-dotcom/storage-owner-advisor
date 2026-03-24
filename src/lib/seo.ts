@@ -52,6 +52,79 @@ export function generateCategoryJsonLd(category: Category) {
   };
 }
 
+// Generates JSON-LD breadcrumbs for vendor pages
+export function generateVendorBreadcrumbJsonLd(vendor: Vendor, category: Category | null) {
+  const items = [
+    { name: 'Home', url: BASE_URL },
+  ];
+  if (category) {
+    items.push({ name: category.name, url: `${BASE_URL}/category/${category.slug}` });
+  }
+  items.push({ name: vendor.name, url: `${BASE_URL}/vendor/${vendor.slug}` });
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
+
+// Generates JSON-LD breadcrumbs for category pages
+export function generateCategoryBreadcrumbJsonLd(category: Category) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: BASE_URL,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: category.name,
+        item: `${BASE_URL}/category/${category.slug}`,
+      },
+    ],
+  };
+}
+
+// Generates JSON-LD LocalBusiness for local vendors
+export function generateLocalBusinessJsonLd(vendor: Vendor) {
+  if (vendor.service_area !== 'local') return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: vendor.name,
+    description: vendor.short_description,
+    url: vendor.website,
+    telephone: vendor.phone || undefined,
+    email: vendor.email || undefined,
+    ...(vendor.city && vendor.state && {
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: vendor.city,
+        addressRegion: vendor.state,
+      },
+    }),
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: vendor.rating,
+      reviewCount: vendor.review_count,
+      bestRating: 5,
+      worstRating: 1,
+    },
+  };
+}
+
 // Generates JSON-LD for the homepage
 export function generateHomeJsonLd() {
   return {
