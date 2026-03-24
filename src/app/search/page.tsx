@@ -47,7 +47,7 @@ export default function SearchPage() {
         .not('state', 'eq', '')
         .order('state');
       if (stateData) {
-        const unique = [...new Set(stateData.map((r: { state: string }) => r.state))];
+        const unique = Array.from(new Set(stateData.map((r: { state: string }) => r.state)));
         setStates(unique);
       }
     }
@@ -70,7 +70,7 @@ export default function SearchPage() {
         .not('city', 'eq', '')
         .order('city');
       if (cityData) {
-        const unique = [...new Set(cityData.map((r: { city: string }) => r.city))];
+        const unique = Array.from(new Set(cityData.map((r: { city: string }) => r.city)));
         setCities(unique);
       }
     }
