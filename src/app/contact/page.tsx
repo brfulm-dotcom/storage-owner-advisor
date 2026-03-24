@@ -1,7 +1,12 @@
 'use client';
 
-import type { Metadata } from 'next';
 import { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -12,6 +17,8 @@ export default function ContactPage() {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -23,12 +30,31 @@ export default function ContactPage() {
       ...prev,
       [name]: value,
     }));
+    if (error) setError('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, you would send this data to your backend
-    console.log('Contact form submitted:', formData);
+    setIsSubmitting(true);
+    setError('');
+
+    const { error: insertError } = await supabase
+      .from('contact_messages')
+      .insert({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+      });
+
+    setIsSubmitting(false);
+
+    if (insertError) {
+      setError('Something went wrong. Please try again.');
+      console.error('Contact form error:', insertError);
+      return;
+    }
+
     setIsSubmitted(true);
     setTimeout(() => {
       setIsSubmitted(false);
@@ -38,7 +64,7 @@ export default function ContactPage() {
         subject: '',
         message: '',
       });
-    }, 3000);
+    }, 5000);
   };
 
   return (
@@ -156,12 +182,20 @@ export default function ContactPage() {
                     />
                   </div>
 
+                  {/* Error */}
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
+                      {error}
+                    </div>
+                  )}
+
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors"
+                    disabled={isSubmitting}
+                    className="w-full bg-blue-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
                   >
-                    Send Message
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </button>
                 </form>
               )}
