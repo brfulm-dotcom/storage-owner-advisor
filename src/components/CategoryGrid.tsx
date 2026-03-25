@@ -7,7 +7,7 @@ export default async function CategoryGrid() {
   const categories = allCategories.filter((c) => c.visible && c.vendor_count > 0);
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-gray-50">
+    <section className="py-12 sm:py-14 md:py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <div className="text-center mb-12">

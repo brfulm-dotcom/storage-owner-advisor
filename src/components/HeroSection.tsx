@@ -23,7 +23,7 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="bg-gradient-to-r from-blue-50 to-blue-100 py-16 sm:py-20 md:py-24">
+    <section className="bg-gradient-to-r from-blue-50 to-blue-100 py-10 sm:py-12 md:py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Headline */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 text-center">

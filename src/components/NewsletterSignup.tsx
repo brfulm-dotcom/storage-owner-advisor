@@ -16,7 +16,7 @@ export default function NewsletterSignup() {
   };
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-r from-gray-900 to-gray-800">
+    <section className="py-12 sm:py-14 md:py-16 bg-gradient-to-r from-gray-900 to-gray-800">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Heading */}
         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
