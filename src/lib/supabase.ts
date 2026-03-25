@@ -22,6 +22,7 @@ export interface Category {
   description: string;
   icon: string;
   vendor_count: number;
+  visible: boolean;
   created_at?: string;
 }
 

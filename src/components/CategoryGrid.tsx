@@ -2,7 +2,9 @@ import { getCategories } from '@/lib/supabase';
 import CategoryCard from '@/components/CategoryCard';
 
 export default async function CategoryGrid() {
-  const categories = await getCategories();
+  const allCategories = await getCategories();
+  // Only show categories marked visible with at least 1 vendor
+  const categories = allCategories.filter((c) => c.visible && c.vendor_count > 0);
 
   return (
     <section className="py-16 sm:py-20 md:py-24 bg-gray-50">

@@ -21,6 +21,8 @@ export default function Footer() {
       const { data } = await supabase
         .from('categories')
         .select('*')
+        .eq('visible', true)
+        .gt('vendor_count', 0)
         .order('name')
         .limit(6);
       if (data) setTopCategories(data);
