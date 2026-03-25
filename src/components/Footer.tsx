@@ -126,7 +126,7 @@ export default function Footer() {
               Have questions? We'd love to hear from you.
             </p>
             <a
-              href="mailto:info@storageoowneradvisor.com"
+              href="mailto:info@storageowneradvisor.com"
               className="text-orange-500 font-medium hover:text-orange-400 transition-colors"
             >
               info@storageowneradvisor.com
