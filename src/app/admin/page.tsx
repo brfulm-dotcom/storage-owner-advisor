@@ -18,7 +18,7 @@ interface Submission {
   phone: string;
   description: string;
   status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
+  submitted_at: string;
 }
 
 interface Claim {
@@ -31,7 +31,7 @@ interface Claim {
   job_title: string | null;
   message: string | null;
   status: 'pending' | 'contacted' | 'verified' | 'rejected';
-  created_at: string;
+  submitted_at: string;
 }
 
 interface ContactMessage {
@@ -335,7 +335,7 @@ export default function AdminPage() {
                             <p className="mt-2 text-sm text-gray-600">
                               <span className="font-medium">Description:</span> {sub.description}
                             </p>
-                            <p className="mt-2 text-xs text-gray-400">{formatDate(sub.created_at)}</p>
+                            <p className="mt-2 text-xs text-gray-400">{formatDate(sub.submitted_at)}</p>
                           </div>
 
                           <div className="flex flex-wrap gap-2 sm:flex-col">
@@ -423,7 +423,7 @@ export default function AdminPage() {
                                 <span className="font-medium">Message:</span> {claim.message}
                               </p>
                             )}
-                            <p className="mt-2 text-xs text-gray-400">{formatDate(claim.created_at)}</p>
+                            <p className="mt-2 text-xs text-gray-400">{formatDate(claim.submitted_at)}</p>
                           </div>
 
                           <div className="flex flex-wrap gap-2 sm:flex-col">

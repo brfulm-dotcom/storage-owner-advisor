@@ -37,11 +37,10 @@ export async function GET(request: NextRequest) {
 
   const supabase = getAdminClient();
 
-  const orderColumn = table === 'contact_messages' ? 'submitted_at' : 'created_at';
   const { data, error } = await supabase
     .from(table)
     .select('*')
-    .order(orderColumn, { ascending: false });
+    .order('submitted_at', { ascending: false });
 
   if (error) {
     console.error(`Error fetching ${table}:`, error);
