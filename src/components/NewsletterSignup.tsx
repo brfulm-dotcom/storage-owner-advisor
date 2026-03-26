@@ -1,18 +1,51 @@
 'use client';
 
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      setSubscribed(true);
-      setEmail('');
-      setTimeout(() => setSubscribed(false), 3000);
+    if (!email) return;
+
+    setSubmitting(true);
+    setError('');
+
+    // Save to Supabase
+    const { error: dbError } = await supabase
+      .from('newsletter_subscribers')
+      .insert([{ email }]);
+
+    if (dbError) {
+      if (dbError.message.includes('duplicate') || dbError.code === '23505') {
+        setError('You are already subscribed!');
+      } else {
+        setError('Something went wrong. Please try again.');
+        console.error('Newsletter signup error:', dbError);
+      }
+      setSubmitting(false);
+      return;
     }
+
+    // Send email notification (fire-and-forget)
+    fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'newsletter',
+        data: { email },
+      }),
+    }).catch(() => {});
+
+    setSubscribed(true);
+    setEmail('');
+    setSubmitting(false);
+    setTimeout(() => setSubscribed(false), 5000);
   };
 
   return (
@@ -40,16 +73,24 @@ export default function NewsletterSignup() {
           />
           <button
             type="submit"
-            className="px-8 py-3 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors whitespace-nowrap"
+            disabled={submitting}
+            className="px-8 py-3 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors whitespace-nowrap disabled:bg-orange-400 disabled:cursor-not-allowed"
           >
-            Subscribe
+            {submitting ? 'Subscribing...' : 'Subscribe'}
           </button>
         </form>
 
         {/* Success Message */}
         {subscribed && (
           <p className="mt-4 text-orange-400 font-medium">
-            ✓ Thank you for subscribing! Check your email for a welcome message.
+            Thank you for subscribing!
+          </p>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <p className="mt-4 text-red-400 font-medium">
+            {error}
           </p>
         )}
 

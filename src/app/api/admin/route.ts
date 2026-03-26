@@ -31,16 +31,17 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const table = searchParams.get('table');
 
-  if (!table || !['submissions', 'claims', 'contact_messages'].includes(table)) {
+  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
   }
 
   const supabase = getAdminClient();
 
+  const orderColumn = table === 'newsletter_subscribers' ? 'subscribed_at' : 'submitted_at';
   const { data, error } = await supabase
     .from(table)
     .select('*')
-    .order('submitted_at', { ascending: false });
+    .order(orderColumn, { ascending: false });
 
   if (error) {
     console.error(`Error fetching ${table}:`, error);
@@ -87,7 +88,7 @@ export async function DELETE(request: NextRequest) {
   const body = await request.json();
   const { table, id } = body;
 
-  if (!table || !['submissions', 'claims', 'contact_messages'].includes(table)) {
+  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
   }
 

@@ -68,6 +68,19 @@ export async function POST(request: NextRequest) {
         `;
         break;
 
+      case 'newsletter':
+        subject = `New Newsletter Subscriber: ${data.email}`;
+        html = `
+          <h2>New Newsletter Subscriber</h2>
+          <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
+            <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${data.email}">${data.email}</a></td></tr>
+          </table>
+          <p style="margin-top: 20px; color: #666; font-size: 14px;">
+            View all subscribers in <a href="https://supabase.com/dashboard">Supabase</a> → newsletter_subscribers table.
+          </p>
+        `;
+        break;
+
       default:
         return NextResponse.json({ error: 'Invalid notification type' }, { status: 400 });
     }

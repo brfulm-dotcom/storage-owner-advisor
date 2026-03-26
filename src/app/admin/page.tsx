@@ -43,7 +43,13 @@ interface ContactMessage {
   submitted_at: string;
 }
 
-type Tab = 'submissions' | 'claims' | 'contacts';
+interface Subscriber {
+  id: number;
+  email: string;
+  subscribed_at: string;
+}
+
+type Tab = 'submissions' | 'claims' | 'contacts' | 'newsletter';
 
 export default function AdminPage() {
   // ---- Auth State ----
@@ -58,6 +64,7 @@ export default function AdminPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [claims, setClaims] = useState<Claim[]>([]);
   const [contacts, setContacts] = useState<ContactMessage[]>([]);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(false);
 
   // ---- Stored password for API calls ----
@@ -107,6 +114,7 @@ export default function AdminPage() {
         submissions: 'submissions',
         claims: 'claims',
         contacts: 'contact_messages',
+        newsletter: 'newsletter_subscribers',
       };
 
       const result = await apiCall('GET', { table: tableMap[activeTab] });
@@ -121,6 +129,9 @@ export default function AdminPage() {
             break;
           case 'contacts':
             setContacts(result.data);
+            break;
+          case 'newsletter':
+            setSubscribers(result.data);
             break;
         }
       }
@@ -277,6 +288,21 @@ export default function AdminPage() {
               }`}
             >
               Contact Messages
+            </button>
+            <button
+              onClick={() => setActiveTab('newsletter')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'newsletter'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Newsletter
+              {subscribers.length > 0 && (
+                <span className="ml-2 bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {subscribers.length}
+                </span>
+              )}
             </button>
           </nav>
         </div>
@@ -521,6 +547,61 @@ export default function AdminPage() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ======== NEWSLETTER TAB ======== */}
+            {activeTab === 'newsletter' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Newsletter Subscribers ({subscribers.length})
+                  </h2>
+                  <button
+                    onClick={fetchData}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Refresh
+                  </button>
+                </div>
+
+                {subscribers.length === 0 ? (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                    <p className="text-gray-500">No subscribers yet.</p>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscribed</th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {subscribers.map((sub) => (
+                          <tr key={sub.id}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <a href={`mailto:${sub.email}`} className="text-blue-600 hover:underline">{sub.email}</a>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {formatDate(sub.subscribed_at)}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                              <button
+                                onClick={() => deleteRecord('newsletter_subscribers', sub.id)}
+                                className="text-red-600 hover:text-red-800 font-medium"
+                              >
+                                Remove
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
