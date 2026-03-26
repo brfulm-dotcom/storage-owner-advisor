@@ -80,6 +80,23 @@ export default function SubmitPage() {
       return;
     }
 
+    // Send email notification (don't block on failure)
+    fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'submission',
+        data: {
+          companyName: formData.companyName,
+          website,
+          category: formData.category,
+          contactEmail: formData.contactEmail,
+          phone: formData.phone,
+          description: formData.description,
+        },
+      }),
+    }).catch((err) => console.error('Notification error:', err));
+
     setIsSubmitted(true);
     setTimeout(() => {
       setIsSubmitted(false);

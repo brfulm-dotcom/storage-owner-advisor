@@ -59,6 +59,24 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
       return;
     }
 
+    // Send email notification (don't block on failure)
+    fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'claim',
+        data: {
+          vendorName,
+          vendorSlug,
+          contactName: formData.contactName,
+          contactEmail: formData.contactEmail,
+          contactPhone: formData.contactPhone,
+          jobTitle: formData.jobTitle,
+          message: formData.message,
+        },
+      }),
+    }).catch((err) => console.error('Notification error:', err));
+
     setIsSubmitted(true);
   };
 

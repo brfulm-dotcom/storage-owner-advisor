@@ -55,6 +55,21 @@ export default function ContactPage() {
       return;
     }
 
+    // Send email notification (don't block on failure)
+    fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'contact',
+        data: {
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        },
+      }),
+    }).catch((err) => console.error('Notification error:', err));
+
     setIsSubmitted(true);
     setTimeout(() => {
       setIsSubmitted(false);
