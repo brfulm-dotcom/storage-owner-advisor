@@ -92,7 +92,8 @@ export default function AdminPage() {
       setAuthenticated(true);
       setStoredPassword(password);
     } else {
-      setAuthError('Incorrect password. Please try again.');
+      const data = await res.json().catch(() => ({}));
+      setAuthError(`Login failed (${res.status}): ${data.error || 'Unknown error'}. Please try again.`);
     }
   };
 
