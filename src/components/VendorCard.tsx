@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { Vendor } from '@/lib/supabase';
 import StarRating from '@/components/StarRating';
@@ -5,6 +7,18 @@ import StarRating from '@/components/StarRating';
 interface VendorCardProps {
   vendor: Vendor;
   categoryName?: string;
+}
+
+function trackClick(vendorSlug: string, vendorName: string, clickType: string) {
+  fetch('/api/track-click', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      vendor_slug: vendorSlug,
+      vendor_name: vendorName,
+      click_type: clickType,
+    }),
+  }).catch(() => {});
 }
 
 export default function VendorCard({ vendor, categoryName }: VendorCardProps) {
@@ -64,6 +78,7 @@ export default function VendorCard({ vendor, categoryName }: VendorCardProps) {
         <div className="flex gap-2">
           <Link
             href={`/vendor/${vendor.slug}`}
+            onClick={() => trackClick(vendor.slug, vendor.name, 'details')}
             className="flex-1 text-center py-1.5 text-sm text-blue-600 font-medium hover:text-blue-700 border border-blue-200 rounded-md hover:bg-blue-50 transition-colors"
           >
             Details
@@ -72,6 +87,7 @@ export default function VendorCard({ vendor, categoryName }: VendorCardProps) {
             href={vendor.affiliate_url || vendor.website}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackClick(vendor.slug, vendor.name, vendor.affiliate_url ? 'affiliate' : 'website')}
             className={`flex-1 text-center py-1.5 text-sm text-white font-medium rounded-md transition-colors ${
               isFeatured
                 ? 'bg-orange-500 hover:bg-orange-600'

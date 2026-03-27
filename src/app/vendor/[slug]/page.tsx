@@ -4,6 +4,7 @@ import { getVendorBySlug, getCategoryBySlug, getVendorSlugs } from '@/lib/supaba
 import StarRating from '@/components/StarRating';
 import ClaimListing from '@/components/ClaimListing';
 import { generateVendorJsonLd, generateVendorBreadcrumbJsonLd, generateLocalBusinessJsonLd } from '@/lib/seo';
+import TrackedLink from '@/components/TrackedLink';
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -249,14 +250,15 @@ export default async function VendorPage(props: VendorPageProps) {
             <div className="lg:col-span-1">
               {/* CTA Button */}
               <div className="bg-white rounded-lg shadow-sm p-8 mb-8 sticky top-6">
-                <a
+                <TrackedLink
                   href={vendor.affiliate_url || vendor.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  vendorSlug={vendor.slug}
+                  vendorName={vendor.name}
+                  clickType={vendor.affiliate_url ? 'affiliate' : 'website'}
                   className="block w-full bg-blue-600 text-white text-center px-6 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors mb-4"
                 >
                   Visit Website
-                </a>
+                </TrackedLink>
                 <p className="text-sm text-gray-600 text-center">
                   Opens in a new window
                 </p>

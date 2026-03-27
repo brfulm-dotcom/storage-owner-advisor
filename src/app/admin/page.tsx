@@ -49,7 +49,16 @@ interface Subscriber {
   subscribed_at: string;
 }
 
-type Tab = 'submissions' | 'claims' | 'contacts' | 'newsletter';
+interface ClickData {
+  vendor_name: string;
+  vendor_slug: string;
+  total_clicks: number;
+  website_clicks: number;
+  affiliate_clicks: number;
+  details_clicks: number;
+}
+
+type Tab = 'submissions' | 'claims' | 'contacts' | 'newsletter' | 'analytics';
 
 export default function AdminPage() {
   // ---- Auth State ----
@@ -65,6 +74,8 @@ export default function AdminPage() {
   const [claims, setClaims] = useState<Claim[]>([]);
   const [contacts, setContacts] = useState<ContactMessage[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [clickData, setClickData] = useState<ClickData[]>([]);
+  const [totalClicks, setTotalClicks] = useState(0);
   const [loading, setLoading] = useState(false);
 
   // ---- Stored password for API calls ----
@@ -110,29 +121,55 @@ export default function AdminPage() {
     setLoading(true);
 
     try {
-      const tableMap: Record<Tab, string> = {
-        submissions: 'submissions',
-        claims: 'claims',
-        contacts: 'contact_messages',
-        newsletter: 'newsletter_subscribers',
-      };
+      if (activeTab === 'analytics') {
+        const result = await apiCall('GET', { table: 'vendor_clicks' });
+        if (result.data) {
+          // Aggregate clicks by vendor
+          const map = new Map<string, ClickData>();
+          for (const click of result.data) {
+            const existing = map.get(click.vendor_slug) || {
+              vendor_name: click.vendor_name,
+              vendor_slug: click.vendor_slug,
+              total_clicks: 0,
+              website_clicks: 0,
+              affiliate_clicks: 0,
+              details_clicks: 0,
+            };
+            existing.total_clicks++;
+            if (click.click_type === 'website') existing.website_clicks++;
+            if (click.click_type === 'affiliate') existing.affiliate_clicks++;
+            if (click.click_type === 'details') existing.details_clicks++;
+            map.set(click.vendor_slug, existing);
+          }
+          const sorted = Array.from(map.values()).sort((a, b) => b.total_clicks - a.total_clicks);
+          setClickData(sorted);
+          setTotalClicks(result.data.length);
+        }
+      } else {
+        const tableMap: Record<string, string> = {
+          submissions: 'submissions',
+          claims: 'claims',
+          contacts: 'contact_messages',
+          newsletter: 'newsletter_subscribers',
+        };
 
-      const result = await apiCall('GET', { table: tableMap[activeTab] });
+        const result = await apiCall('GET', { table: tableMap[activeTab] });
 
-      if (result.data) {
-        switch (activeTab) {
-          case 'submissions':
-            setSubmissions(result.data);
-            break;
-          case 'claims':
-            setClaims(result.data);
-            break;
-          case 'contacts':
-            setContacts(result.data);
-            break;
-          case 'newsletter':
-            setSubscribers(result.data);
-            break;
+        if (result.data) {
+          switch (activeTab) {
+            case 'submissions':
+              setSubmissions(result.data);
+              break;
+            case 'claims':
+              setClaims(result.data);
+              break;
+            case 'contacts':
+              setContacts(result.data);
+              break;
+            case 'newsletter':
+              setSubscribers(result.data);
+              break;
+          }
         }
       }
     } catch (err) {
@@ -301,6 +338,21 @@ export default function AdminPage() {
               {subscribers.length > 0 && (
                 <span className="ml-2 bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full">
                   {subscribers.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'analytics'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Analytics
+              {totalClicks > 0 && (
+                <span className="ml-2 bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {totalClicks}
                 </span>
               )}
             </button>
@@ -547,6 +599,84 @@ export default function AdminPage() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ======== ANALYTICS TAB ======== */}
+            {activeTab === 'analytics' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Click Analytics ({totalClicks} total clicks)
+                  </h2>
+                  <button
+                    onClick={fetchData}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Refresh
+                  </button>
+                </div>
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <p className="text-sm text-gray-500">Total Clicks</p>
+                    <p className="text-2xl font-bold text-gray-900">{totalClicks}</p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <p className="text-sm text-gray-500">Website Clicks</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {clickData.reduce((sum, v) => sum + v.website_clicks, 0)}
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <p className="text-sm text-gray-500">Affiliate Clicks</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {clickData.reduce((sum, v) => sum + v.affiliate_clicks, 0)}
+                    </p>
+                  </div>
+                </div>
+
+                {clickData.length === 0 ? (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                    <p className="text-gray-500">No clicks tracked yet. Clicks will appear here as visitors click &quot;Visit Website&quot; and &quot;Details&quot; on vendor listings.</p>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Website</th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Affiliate</th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {clickData.map((vendor) => (
+                          <tr key={vendor.vendor_slug}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {vendor.vendor_name}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-bold text-gray-900">
+                              {vendor.total_clicks}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-blue-600">
+                              {vendor.website_clicks}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-green-600">
+                              {vendor.affiliate_clicks}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-600">
+                              {vendor.details_clicks}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
