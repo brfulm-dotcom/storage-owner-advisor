@@ -49,15 +49,15 @@ export default function NewsletterSignup() {
   };
 
   return (
-    <section className="py-12 sm:py-14 md:py-16 bg-gradient-to-r from-gray-900 to-gray-800">
+    <section className="py-8 sm:py-10 bg-gradient-to-r from-gray-900 to-gray-800">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Heading */}
-        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
           Stay Updated
         </h2>
 
         {/* Description */}
-        <p className="text-lg text-gray-300 mb-8">
+        <p className="text-base text-gray-300 mb-5">
           Get the latest vendor reviews, industry news, and exclusive deals delivered to your inbox.
         </p>
 

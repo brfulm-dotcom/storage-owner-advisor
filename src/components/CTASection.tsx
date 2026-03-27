@@ -2,15 +2,15 @@ import Link from 'next/link';
 
 export default function CTASection() {
   return (
-    <section className="bg-gradient-to-r from-blue-50 to-indigo-50 py-12 sm:py-14 md:py-16">
+    <section className="bg-gradient-to-r from-blue-50 to-indigo-50 py-8 sm:py-10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Heading */}
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
           Are You a Vendor?
         </h2>
 
         {/* Description */}
-        <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
+        <p className="text-base text-gray-700 mb-6 max-w-2xl mx-auto">
           Get your products and services in front of thousands of storage facility owners. List your company in our directory.
         </p>
 

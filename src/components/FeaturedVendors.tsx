@@ -15,11 +15,11 @@ export default async function FeaturedVendors() {
   const categoryMap = new Map(categories.map((c) => [c.slug, c.name]));
 
   return (
-    <section className="py-12 sm:py-14 md:py-16 bg-white">
+    <section className="py-8 sm:py-10 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Featured Vendors
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
