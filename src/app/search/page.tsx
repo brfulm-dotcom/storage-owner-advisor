@@ -43,6 +43,7 @@ export default function SearchPage() {
       const { data: stateData } = await supabase
         .from('vendors')
         .select('state')
+        .neq('active', false)
         .not('state', 'is', null)
         .not('state', 'eq', '')
         .order('state');
@@ -66,6 +67,7 @@ export default function SearchPage() {
         .from('vendors')
         .select('city')
         .eq('state', selectedState)
+        .neq('active', false)
         .not('city', 'is', null)
         .not('city', 'eq', '')
         .order('city');
@@ -83,7 +85,8 @@ export default function SearchPage() {
 
     let queryBuilder = supabase
       .from('vendors')
-      .select('*');
+      .select('*')
+      .neq('active', false);
 
     // Text search
     if (query.trim()) {

@@ -89,6 +89,7 @@ export async function getVendors(): Promise<Vendor[]> {
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
+    .neq('active', false)
     .order('name');
 
   if (error) {
@@ -117,6 +118,7 @@ export async function getVendorsByCategory(categorySlug: string): Promise<Vendor
     .from('vendors')
     .select('*')
     .eq('category_slug', categorySlug)
+    .neq('active', false)
     .order('featured', { ascending: false })
     .order('rating', { ascending: false });
 
@@ -132,6 +134,7 @@ export async function getFeaturedVendors(): Promise<Vendor[]> {
     .from('vendors')
     .select('*')
     .eq('featured', true)
+    .neq('active', false)
     .order('rating', { ascending: false });
 
   if (error) {
@@ -145,6 +148,7 @@ export async function searchVendors(query: string): Promise<Vendor[]> {
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
+    .neq('active', false)
     .or(`name.ilike.%${query}%,short_description.ilike.%${query}%`)
     .order('rating', { ascending: false });
 
@@ -167,7 +171,8 @@ export async function getCategorySlugs(): Promise<string[]> {
 export async function getVendorSlugs(): Promise<string[]> {
   const { data, error } = await supabase
     .from('vendors')
-    .select('slug');
+    .select('slug')
+    .neq('active', false);
 
   if (error) return [];
   return (data || []).map((v) => v.slug);
