@@ -23,20 +23,20 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="bg-gradient-to-r from-blue-50 to-blue-100 py-10 sm:py-12 md:py-16">
+    <section className="bg-gradient-to-r from-blue-50 to-blue-100 py-6 sm:py-8 md:py-10">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Headline */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4 text-center">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-2 text-center">
           Find Trusted Vendors for Your Storage Facility
         </h1>
 
         {/* Subheadline */}
-        <p className="text-lg sm:text-xl text-gray-700 text-center mb-8 max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg text-gray-700 text-center mb-5 max-w-2xl mx-auto">
           The #1 directory of vetted service providers, equipment suppliers, and technology partners for self-storage owners and operators.
         </p>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="flex gap-2 mb-8 max-w-2xl mx-auto">
+        <form onSubmit={handleSearch} className="flex gap-2 mb-5 max-w-2xl mx-auto">
           <input
             type="text"
             placeholder="Search vendors, services, or products..."
@@ -54,8 +54,8 @@ export default function HeroSection() {
 
         {/* Popular Searches */}
         <div className="text-center">
-          <p className="text-sm text-gray-600 mb-3">Popular:</p>
-          <div className="flex flex-wrap justify-center gap-3">
+          <p className="text-sm text-gray-600 mb-2">Popular:</p>
+          <div className="flex flex-wrap justify-center gap-2">
             {popularSearches.map((search) => (
               <Link
                 key={search.slug}
