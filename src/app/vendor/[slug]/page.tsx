@@ -149,9 +149,6 @@ export default async function VendorPage(props: VendorPageProps) {
                 <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-200">
                   <div className="flex items-center gap-2">
                     <StarRating rating={vendor.rating} reviewCount={vendor.review_count} />
-                    <span className="text-gray-600">
-                      ({vendor.review_count} reviews)
-                    </span>
                   </div>
                 </div>
 
