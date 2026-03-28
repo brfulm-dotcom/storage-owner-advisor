@@ -220,40 +220,6 @@ export default async function VendorPage(props: VendorPageProps) {
                 </div>
               </div>
 
-              {/* Screenshots */}
-              {vendor.screenshots && vendor.screenshots.length > 0 && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">Screenshots</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {vendor.screenshots.map((url, i) => (
-                      <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                        <img
-                          src={url}
-                          alt={`${vendor.name} screenshot ${i + 1}`}
-                          className="w-full rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
-                        />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Video */}
-              {embedUrl && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">Video</h2>
-                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                    <iframe
-                      src={embedUrl}
-                      title={`${vendor.name} video`}
-                      className="absolute top-0 left-0 w-full h-full rounded-lg"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
-              )}
-
               {/* Features */}
               {vendor.features && vendor.features.length > 0 && (
                 <div className="bg-white rounded-lg shadow-sm p-6">
@@ -268,6 +234,14 @@ export default async function VendorPage(props: VendorPageProps) {
                       </span>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Pricing */}
+              {vendor.pricing && (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-3">Pricing</h2>
+                  <p className="text-gray-700">{vendor.pricing}</p>
                 </div>
               )}
 
@@ -310,11 +284,37 @@ export default async function VendorPage(props: VendorPageProps) {
                 </div>
               )}
 
-              {/* Pricing */}
-              {vendor.pricing && (
+              {/* Screenshots */}
+              {vendor.screenshots && vendor.screenshots.length > 0 && (
                 <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-3">Pricing</h2>
-                  <p className="text-gray-700">{vendor.pricing}</p>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">Screenshots</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {vendor.screenshots.map((url, i) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={url}
+                          alt={`${vendor.name} screenshot ${i + 1}`}
+                          className="w-full rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Video */}
+              {embedUrl && (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">Video</h2>
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <iframe
+                      src={embedUrl}
+                      title={`${vendor.name} video`}
+                      className="absolute top-0 left-0 w-full h-full rounded-lg"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
                 </div>
               )}
 
