@@ -378,7 +378,7 @@ export default async function VendorPage(props: VendorPageProps) {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-6 space-y-4">
+              <div className="sticky top-28 space-y-4">
                 {/* Company Info & Contact */}
                 <div className="bg-white rounded-lg shadow-sm p-4">
                   <h3 className="text-lg font-bold text-gray-900 mb-3">Company Info</h3>
@@ -416,14 +416,6 @@ export default async function VendorPage(props: VendorPageProps) {
                         <span className="text-gray-500">Email</span>
                         <a href={`mailto:${vendor.email}`} className="text-blue-600 hover:text-blue-700 font-medium truncate ml-2">
                           {vendor.email}
-                        </a>
-                      </div>
-                    )}
-                    {vendor.website && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Website</span>
-                        <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-medium truncate ml-2">
-                          {vendor.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
                         </a>
                       </div>
                     )}
