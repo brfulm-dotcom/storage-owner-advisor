@@ -403,6 +403,12 @@ export default async function VendorPage(props: VendorPageProps) {
                         </span>
                       </div>
                     )}
+                    {vendor.service_area && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Service Area</span>
+                        <span className="text-gray-900 font-medium capitalize">{vendor.service_area}</span>
+                      </div>
+                    )}
                     {vendor.phone && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">Phone</span>
