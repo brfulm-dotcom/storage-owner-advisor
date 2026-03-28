@@ -333,48 +333,6 @@ export default async function VendorPage(props: VendorPageProps) {
                 </div>
               )}
 
-              {/* Contact Information */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Contact Information</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {vendor.website && (
-                    <div>
-                      <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">Website</p>
-                      <a
-                        href={vendor.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 text-sm break-all"
-                      >
-                        {vendor.website.replace(/^https?:\/\/(www\.)?/, '')}
-                      </a>
-                    </div>
-                  )}
-                  {vendor.phone && (
-                    <div>
-                      <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">Phone</p>
-                      <a
-                        href={`tel:${vendor.phone}`}
-                        className="text-blue-600 hover:text-blue-700 text-sm"
-                      >
-                        {vendor.phone}
-                      </a>
-                    </div>
-                  )}
-                  {vendor.email && (
-                    <div>
-                      <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">Email</p>
-                      <a
-                        href={`mailto:${vendor.email}`}
-                        className="text-blue-600 hover:text-blue-700 text-sm"
-                      >
-                        {vendor.email}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-
               {/* Related Vendors */}
               {relatedVendors.length > 0 && (
                 <div className="bg-white rounded-lg shadow-sm p-6">
@@ -421,6 +379,57 @@ export default async function VendorPage(props: VendorPageProps) {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="sticky top-6 space-y-4">
+                {/* Company Info & Contact */}
+                <div className="bg-white rounded-lg shadow-sm p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Company Info</h3>
+                  <div className="space-y-3 text-sm">
+                    {vendor.year_founded && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Founded</span>
+                        <span className="text-gray-900 font-medium">{vendor.year_founded}</span>
+                      </div>
+                    )}
+                    {vendor.headquarters && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">HQ</span>
+                        <span className="text-gray-900 font-medium">{vendor.headquarters}</span>
+                      </div>
+                    )}
+                    {(vendor.city || vendor.state) && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Location</span>
+                        <span className="text-gray-900 font-medium">
+                          {[vendor.city, vendor.state].filter(Boolean).join(', ')}
+                        </span>
+                      </div>
+                    )}
+                    {vendor.phone && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Phone</span>
+                        <a href={`tel:${vendor.phone}`} className="text-blue-600 hover:text-blue-700 font-medium">
+                          {vendor.phone}
+                        </a>
+                      </div>
+                    )}
+                    {vendor.email && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Email</span>
+                        <a href={`mailto:${vendor.email}`} className="text-blue-600 hover:text-blue-700 font-medium truncate ml-2">
+                          {vendor.email}
+                        </a>
+                      </div>
+                    )}
+                    {vendor.website && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Website</span>
+                        <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-medium truncate ml-2">
+                          {vendor.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* CTA Button */}
                 <div className="bg-white rounded-lg shadow-sm p-4">
                   <TrackedLink
@@ -437,40 +446,13 @@ export default async function VendorPage(props: VendorPageProps) {
                   </p>
                 </div>
 
-                {/* Claim This Listing */}
-                <ClaimListing vendorSlug={vendor.slug} vendorName={vendor.name} />
-
-                {/* Company Info */}
-                {(vendor.year_founded || vendor.headquarters || vendor.city || vendor.state) && (
-                  <div className="bg-white rounded-lg shadow-sm p-4">
-                    <h3 className="text-lg font-bold text-gray-900 mb-3">Company Info</h3>
-                    <div className="space-y-3 text-sm">
-                      {vendor.year_founded && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Founded</span>
-                          <span className="text-gray-900 font-medium">{vendor.year_founded}</span>
-                        </div>
-                      )}
-                      {vendor.headquarters && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">HQ</span>
-                          <span className="text-gray-900 font-medium">{vendor.headquarters}</span>
-                        </div>
-                      )}
-                      {(vendor.city || vendor.state) && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-500">Location</span>
-                          <span className="text-gray-900 font-medium">
-                            {[vendor.city, vendor.state].filter(Boolean).join(', ')}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                {/* Claim This Listing - only show if not verified/claimed */}
+                {!vendor.verified && (
+                  <ClaimListing vendorSlug={vendor.slug} vendorName={vendor.name} />
                 )}
 
                 {/* Premium CTA for free vendors */}
-                {vendor.tier === 'free' && (
+                {vendor.tier === 'free' && !vendor.verified && (
                   <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-4">
                     <h3 className="font-bold text-gray-900 text-sm mb-1">Are you {vendor.name}?</h3>
                     <p className="text-xs text-gray-600 mb-3">
