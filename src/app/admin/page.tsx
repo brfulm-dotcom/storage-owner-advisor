@@ -30,7 +30,7 @@ interface Claim {
   contact_phone: string | null;
   job_title: string | null;
   message: string | null;
-  status: 'pending' | 'contacted' | 'verified' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected';
   submitted_at: string;
 }
 
@@ -187,6 +187,38 @@ export default function AdminPage() {
   const updateStatus = async (table: string, id: number, status: string) => {
     await apiCall('PATCH', undefined, { table, id, status });
     fetchData();
+  };
+
+  // ---- Approve/Reject claims with email ----
+  const approveClaim = async (claimId: number) => {
+    if (!confirm('Approve this claim? An email with an edit link will be sent to the vendor.')) return;
+    try {
+      const result = await apiCall('POST', undefined, { action: 'approve_claim', claimId });
+      if (result.success) {
+        alert('Claim approved! Edit link emailed to vendor.');
+        fetchData();
+      } else {
+        alert('Error: ' + (result.error || 'Unknown error'));
+      }
+    } catch {
+      alert('Failed to approve claim.');
+    }
+  };
+
+  const rejectClaim = async (claimId: number) => {
+    const reason = prompt('Optional: Enter a reason for rejection (or leave blank):');
+    if (reason === null) return; // cancelled
+    try {
+      const result = await apiCall('POST', undefined, { action: 'reject_claim', claimId, reason });
+      if (result.success) {
+        alert('Claim rejected. Notification emailed to vendor.');
+        fetchData();
+      } else {
+        alert('Error: ' + (result.error || 'Unknown error'));
+      }
+    } catch {
+      alert('Failed to reject claim.');
+    }
   };
 
   // ---- Delete record ----
@@ -505,28 +537,33 @@ export default function AdminPage() {
                           </div>
 
                           <div className="flex flex-wrap gap-2 sm:flex-col">
-                            {claim.status !== 'contacted' && (
-                              <button
-                                onClick={() => updateStatus('claims', claim.id, 'contacted')}
-                                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
-                              >
-                                Contacted
-                              </button>
+                            {claim.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => approveClaim(claim.id)}
+                                  className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors"
+                                >
+                                  Approve & Send Edit Link
+                                </button>
+                                <button
+                                  onClick={() => rejectClaim(claim.id)}
+                                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors"
+                                >
+                                  Reject
+                                </button>
+                              </>
                             )}
-                            {claim.status !== 'verified' && (
-                              <button
-                                onClick={() => updateStatus('claims', claim.id, 'verified')}
-                                className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors"
-                              >
-                                Verified
-                              </button>
+                            {claim.status === 'approved' && (
+                              <span className="text-xs text-green-700 bg-green-50 px-3 py-1.5 rounded-md">
+                                Edit link sent to vendor
+                              </span>
                             )}
-                            {claim.status !== 'rejected' && (
+                            {claim.status === 'rejected' && (
                               <button
-                                onClick={() => updateStatus('claims', claim.id, 'rejected')}
-                                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors"
+                                onClick={() => updateStatus('claims', claim.id, 'pending')}
+                                className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-md transition-colors"
                               >
-                                Reject
+                                Reset to Pending
                               </button>
                             )}
                             <button
