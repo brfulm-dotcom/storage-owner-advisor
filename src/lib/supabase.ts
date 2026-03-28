@@ -49,6 +49,14 @@ export interface Vendor {
   city?: string | null;
   state?: string | null;
   service_area: 'local' | 'national';
+  pros?: string[] | null;
+  cons?: string[] | null;
+  video_url?: string | null;
+  screenshots?: string[] | null;
+  faq?: { question: string; answer: string }[] | null;
+  verified?: boolean;
+  badges?: string[] | null;
+  active?: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -176,4 +184,22 @@ export async function getVendorSlugs(): Promise<string[]> {
 
   if (error) return [];
   return (data || []).map((v) => v.slug);
+}
+
+export async function getRelatedVendors(categorySlug: string, excludeSlug: string, limit = 4): Promise<Vendor[]> {
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('*')
+    .eq('category_slug', categorySlug)
+    .neq('slug', excludeSlug)
+    .neq('active', false)
+    .order('featured', { ascending: false })
+    .order('rating', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching related vendors:', error);
+    return [];
+  }
+  return data || [];
 }
