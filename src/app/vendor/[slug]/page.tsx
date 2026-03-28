@@ -138,7 +138,7 @@ export default async function VendorPage(props: VendorPageProps) {
                       </Link>
                     )}
                   </div>
-                  {vendor.tier && (
+                  {vendor.tier && vendor.tier !== 'free' && (
                     <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg font-semibold">
                       {vendor.tier}
                     </div>
@@ -246,13 +246,13 @@ export default async function VendorPage(props: VendorPageProps) {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               {/* CTA Button */}
-              <div className="bg-white rounded-lg shadow-sm p-8 mb-8 sticky top-6">
+              <div className="bg-white rounded-lg shadow-sm p-4 mb-4 sticky top-6">
                 <TrackedLink
                   href={vendor.affiliate_url || vendor.website}
                   vendorSlug={vendor.slug}
                   vendorName={vendor.name}
                   clickType={vendor.affiliate_url ? 'affiliate' : 'website'}
-                  className="block w-full bg-blue-600 text-white text-center px-6 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors mb-4"
+                  className="block w-full bg-blue-600 text-white text-center px-4 py-3 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors mb-2"
                 >
                   Visit Website
                 </TrackedLink>
@@ -262,13 +262,13 @@ export default async function VendorPage(props: VendorPageProps) {
               </div>
 
               {/* Claim This Listing */}
-              <div className="mb-8">
+              <div className="mb-4">
                 <ClaimListing vendorSlug={vendor.slug} vendorName={vendor.name} />
               </div>
 
               {/* Company Info */}
               {(vendor.year_founded || vendor.headquarters) && (
-                <div className="bg-white rounded-lg shadow-sm p-8">
+                <div className="bg-white rounded-lg shadow-sm p-4">
                   <h3 className="text-lg font-bold text-gray-900 mb-4">
                     Company Info
                   </h3>

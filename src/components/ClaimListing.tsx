@@ -82,7 +82,7 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
 
   if (isSubmitted) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
         <div className="text-3xl mb-2">✓</div>
         <h3 className="text-lg font-bold text-green-800 mb-2">Claim Submitted!</h3>
         <p className="text-sm text-green-700">
@@ -94,7 +94,7 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
 
   if (!isOpen) {
     return (
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
         <h3 className="text-lg font-bold text-gray-900 mb-2">
           Is this your business?
         </h3>
@@ -112,7 +112,7 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <div className="bg-white border border-gray-200 rounded-lg p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-gray-900">Claim This Listing</h3>
         <button
