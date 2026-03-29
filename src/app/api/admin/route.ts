@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import crypto from 'crypto';
+import { revalidatePath } from 'next/cache';
 
 // =============================================================
 // ADMIN API ROUTE
@@ -199,6 +200,18 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
+  }
+
+  if (action === 'revalidate_seo') {
+    try {
+      // Revalidate all SEO landing pages, category pages, and homepage
+      revalidatePath('/best', 'layout');
+      revalidatePath('/', 'layout');
+      revalidatePath('/sitemap.xml');
+      return NextResponse.json({ success: true, message: 'SEO pages revalidated' });
+    } catch (err) {
+      return NextResponse.json({ error: 'Failed to revalidate: ' + String(err) }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

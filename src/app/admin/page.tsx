@@ -392,8 +392,31 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <div className="flex justify-end">
+          <button
+            onClick={async () => {
+              try {
+                const result = await apiCall('POST', undefined, { action: 'revalidate_seo' });
+                if (result.success) {
+                  alert('SEO pages refreshed! New vendors and changes are now live.');
+                } else {
+                  alert('Error: ' + (result.error || 'Unknown error'));
+                }
+              } catch {
+                alert('Failed to revalidate SEO pages.');
+              }
+            }}
+            className="bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition-colors"
+          >
+            Refresh SEO Pages
+          </button>
+        </div>
+      </div>
+
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
