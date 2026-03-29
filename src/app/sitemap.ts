@@ -4,7 +4,7 @@
 // =============================================================
 
 import { MetadataRoute } from 'next';
-import { getCategories, getVendors, getUniqueStates, getCategorySlugs } from '@/lib/supabase';
+import { getCategories, getVendors, getVendorsByCategory, getUniqueStates, getCategorySlugs } from '@/lib/supabase';
 
 const BASE_URL = 'https://www.storageowneradvisor.com';
 
@@ -64,11 +64,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
+  // Comparison pages - management software (highest value)
+  const softwareVendors = await getVendorsByCategory('management-software');
+  const topSoftware = softwareVendors.slice(0, 10);
+  const comparePages: MetadataRoute.Sitemap = [];
+  for (let i = 0; i < topSoftware.length; i++) {
+    for (let j = i + 1; j < topSoftware.length; j++) {
+      comparePages.push({
+        url: `${BASE_URL}/compare/${topSoftware[i].slug}-vs-${topSoftware[j].slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      });
+    }
+  }
+
   return [
     ...staticPages,
     ...categoryPages,
     ...vendorPages,
     ...stateOverviewPages,
     ...stateCategoryPages,
+    ...comparePages,
   ];
 }
