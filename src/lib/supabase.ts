@@ -213,7 +213,7 @@ export async function getUniqueStates(): Promise<string[]> {
     .not('state', 'eq', '');
 
   if (error) return [];
-  const states = [...new Set((data || []).map((v: { state: string }) => v.state))].sort();
+  const states = Array.from(new Set((data || []).map((v: { state: string }) => v.state))).sort();
   return states;
 }
 
@@ -227,7 +227,7 @@ export async function getUniqueCitiesByState(state: string): Promise<string[]> {
     .not('city', 'eq', '');
 
   if (error) return [];
-  const cities = [...new Set((data || []).map((v: { city: string }) => v.city))].sort();
+  const cities = Array.from(new Set((data || []).map((v: { city: string }) => v.city))).sort();
   return cities;
 }
 
