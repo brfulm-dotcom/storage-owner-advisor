@@ -133,8 +133,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create access token' }, { status: 500 });
     }
 
-    // Update claim status
+    // Update claim status and mark vendor as verified
     await supabase.from('claims').update({ status: 'approved' }).eq('id', claimId);
+    await supabase.from('vendors').update({ verified: true }).eq('id', vendor.id);
 
     // Send approval email with edit link
     const resend = new Resend(process.env.RESEND_API_KEY);
