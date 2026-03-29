@@ -4,15 +4,21 @@
 // =============================================================
 
 import { MetadataRoute } from 'next';
-import { getCategories, getVendors } from '@/lib/supabase';
+import { getCategories, getVendors, getUniqueStates, getCategorySlugs } from '@/lib/supabase';
 
 const BASE_URL = 'https://www.storageowneradvisor.com';
 
+function stateToSlug(state: string): string {
+  return state.toLowerCase().replace(/\s+/g, '-');
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch data from Supabase
-  const [categories, vendors] = await Promise.all([
+  const [categories, vendors, states, categorySlugs] = await Promise.all([
     getCategories(),
     getVendors(),
+    getUniqueStates(),
+    getCategorySlugs(),
   ]);
 
   // Static pages
@@ -40,5 +46,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...categoryPages, ...vendorPages];
+  // SEO Landing Pages - State overviews
+  const stateOverviewPages = states.map((state) => ({
+    url: `${BASE_URL}/best/storage-vendors/${stateToSlug(state)}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // SEO Landing Pages - State + Category combinations
+  const stateCategoryPages = states.flatMap((state) =>
+    categorySlugs.map((cat) => ({
+      url: `${BASE_URL}/best/${cat}/${stateToSlug(state)}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
+  );
+
+  return [
+    ...staticPages,
+    ...categoryPages,
+    ...vendorPages,
+    ...stateOverviewPages,
+    ...stateCategoryPages,
+  ];
 }

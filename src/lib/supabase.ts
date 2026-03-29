@@ -167,6 +167,70 @@ export async function searchVendors(query: string): Promise<Vendor[]> {
   return data || [];
 }
 
+// =============================================================
+// SEO LANDING PAGE HELPERS
+// =============================================================
+
+export async function getVendorsByStateAndCategory(state: string, categorySlug: string): Promise<Vendor[]> {
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('*')
+    .eq('category_slug', categorySlug)
+    .neq('active', false)
+    .or(`state.ilike.${state},service_area.ilike.national`)
+    .order('featured', { ascending: false })
+    .order('rating', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching vendors by state and category:', error);
+    return [];
+  }
+  return data || [];
+}
+
+export async function getVendorsByState(state: string): Promise<Vendor[]> {
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('*')
+    .neq('active', false)
+    .or(`state.ilike.${state},service_area.ilike.national`)
+    .order('featured', { ascending: false })
+    .order('rating', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching vendors by state:', error);
+    return [];
+  }
+  return data || [];
+}
+
+export async function getUniqueStates(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('state')
+    .neq('active', false)
+    .not('state', 'is', null)
+    .not('state', 'eq', '');
+
+  if (error) return [];
+  const states = [...new Set((data || []).map((v: { state: string }) => v.state))].sort();
+  return states;
+}
+
+export async function getUniqueCitiesByState(state: string): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('city')
+    .neq('active', false)
+    .ilike('state', state)
+    .not('city', 'is', null)
+    .not('city', 'eq', '');
+
+  if (error) return [];
+  const cities = [...new Set((data || []).map((v: { city: string }) => v.city))].sort();
+  return cities;
+}
+
 export async function getCategorySlugs(): Promise<string[]> {
   const { data, error } = await supabase
     .from('categories')
