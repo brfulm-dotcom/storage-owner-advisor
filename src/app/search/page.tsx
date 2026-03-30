@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import VendorCard from '@/components/VendorCard';
 import type { Vendor, Category } from '@/lib/supabase';
+import { SORT_OPTIONS, sortVendors } from '@/components/SortableVendorGrid';
+import type { SortOption } from '@/components/SortableVendorGrid';
 
 // Client-side Supabase instance for search
 const supabase = createClient(
@@ -23,6 +25,7 @@ export default function SearchPage() {
   const [selectedState, setSelectedState] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedServiceArea, setSelectedServiceArea] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('rating');
 
   // Dropdown options
   const [categories, setCategories] = useState<Category[]>([]);
@@ -138,6 +141,7 @@ export default function SearchPage() {
     setHasSearched(false);
   };
 
+  const sortedResults = sortVendors(results, sortBy);
   const hasActiveFilters = query || selectedCategory || selectedState || selectedCity || selectedServiceArea;
 
   return (
@@ -272,12 +276,29 @@ export default function SearchPage() {
       <div className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {hasSearched && (
-            <div className="mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
               <p className="text-gray-600">
                 {results.length === 0
                   ? 'No vendors found matching your criteria'
                   : `Found ${results.length} vendor${results.length !== 1 ? 's' : ''}`}
               </p>
+              {results.length > 1 && (
+                <div className="flex items-center gap-2">
+                  <label htmlFor="sort" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                    Sort by:
+                  </label>
+                  <select
+                    id="sort"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as SortOption)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+                  >
+                    {SORT_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           )}
 
@@ -313,7 +334,7 @@ export default function SearchPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {results.map((vendor) => (
+              {sortedResults.map((vendor) => (
                 <VendorCard key={vendor.slug} vendor={vendor} />
               ))}
             </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getCategoryBySlug, getVendorsByCategory, getCategorySlugs } from '@/lib/supabase';
-import VendorCard from '@/components/VendorCard';
+import SortableVendorGrid from '@/components/SortableVendorGrid';
 import { generateCategoryJsonLd, generateCategoryBreadcrumbJsonLd } from '@/lib/seo';
 
 // Revalidate every 60 seconds (picks up new vendors without redeploy)
@@ -132,16 +132,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
               </Link>
             </div>
           ) : (
-            <>
-              <p className="text-gray-600 mb-8">
-                Showing {vendors.length} vendor{vendors.length !== 1 ? 's' : ''}
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {vendors.map((vendor) => (
-                  <VendorCard key={vendor.slug} vendor={vendor} />
-                ))}
-              </div>
-            </>
+            <SortableVendorGrid vendors={vendors} />
           )}
         </div>
       </div>
