@@ -7,13 +7,12 @@ import { NextRequest, NextResponse } from 'next/server';
 // Uses anon key since RLS allows public inserts.
 // =============================================================
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
     const { vendor_slug, vendor_name, click_type } = await request.json();
 
     if (!vendor_slug || !vendor_name) {

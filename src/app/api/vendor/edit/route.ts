@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 const ALLOWED_FIELDS = [
   'logo', 'full_description', 'short_description', 'phone',
@@ -12,6 +14,7 @@ const ALLOWED_FIELDS = [
 ];
 
 export async function GET(request: NextRequest) {
+  const supabase = getSupabase();
   const token = request.nextUrl.searchParams.get('token');
   if (!token) {
     return NextResponse.json({ error: 'Token required' }, { status: 400 });
@@ -48,6 +51,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const supabase = getSupabase();
   const token = request.nextUrl.searchParams.get('token');
   if (!token) {
     return NextResponse.json({ error: 'Token required' }, { status: 400 });
