@@ -131,9 +131,12 @@ export default function Footer() {
             >
               info@storageowneradvisor.com
             </a>
-            <p className="text-sm text-gray-400 mt-4">
-              1-800-STORAGE
-            </p>
+            <a
+              href="tel:925-272-8644"
+              className="block text-sm text-gray-400 mt-4 hover:text-orange-500 transition-colors"
+            >
+              925-272-8644
+            </a>
           </div>
         </div>
 
