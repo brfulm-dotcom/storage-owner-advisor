@@ -9,7 +9,14 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const supabase = supabaseUrl ? createClient(supabaseUrl, supabaseAnonKey) : null as unknown as ReturnType<typeof createClient>;
+// Supabase client — may be null during Vercel build if env vars aren't available
+const _supabase = supabaseUrl ? createClient(supabaseUrl, supabaseAnonKey) : null;
+export const supabase = _supabase as NonNullable<typeof _supabase>;
+
+// Helper: returns true if supabase is configured and ready
+export function isSupabaseReady(): boolean {
+  return _supabase !== null;
+}
 
 // =============================================================
 // DATABASE TYPES (match the Supabase tables)
@@ -67,6 +74,7 @@ export interface Vendor {
 // =============================================================
 
 export async function getCategories(): Promise<Category[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('categories')
     .select('*')
@@ -80,6 +88,7 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  if (!isSupabaseReady()) return null;
   const { data, error } = await supabase
     .from('categories')
     .select('*')
@@ -94,6 +103,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 }
 
 export async function getVendors(): Promise<Vendor[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
@@ -108,6 +118,7 @@ export async function getVendors(): Promise<Vendor[]> {
 }
 
 export async function getVendorBySlug(slug: string): Promise<Vendor | null> {
+  if (!isSupabaseReady()) return null;
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
@@ -122,6 +133,7 @@ export async function getVendorBySlug(slug: string): Promise<Vendor | null> {
 }
 
 export async function getVendorsByCategory(categorySlug: string): Promise<Vendor[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
@@ -138,6 +150,7 @@ export async function getVendorsByCategory(categorySlug: string): Promise<Vendor
 }
 
 export async function getFeaturedVendors(): Promise<Vendor[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
@@ -153,6 +166,7 @@ export async function getFeaturedVendors(): Promise<Vendor[]> {
 }
 
 export async function searchVendors(query: string): Promise<Vendor[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
@@ -172,6 +186,7 @@ export async function searchVendors(query: string): Promise<Vendor[]> {
 // =============================================================
 
 export async function getVendorsByStateAndCategory(state: string, categorySlug: string): Promise<Vendor[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
@@ -189,6 +204,7 @@ export async function getVendorsByStateAndCategory(state: string, categorySlug: 
 }
 
 export async function getVendorsByState(state: string): Promise<Vendor[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
@@ -205,6 +221,7 @@ export async function getVendorsByState(state: string): Promise<Vendor[]> {
 }
 
 export async function getUniqueStates(): Promise<string[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('vendors')
     .select('state')
@@ -218,6 +235,7 @@ export async function getUniqueStates(): Promise<string[]> {
 }
 
 export async function getUniqueCitiesByState(state: string): Promise<string[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('vendors')
     .select('city')
@@ -232,6 +250,7 @@ export async function getUniqueCitiesByState(state: string): Promise<string[]> {
 }
 
 export async function getCategorySlugs(): Promise<string[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('categories')
     .select('slug');
@@ -241,6 +260,7 @@ export async function getCategorySlugs(): Promise<string[]> {
 }
 
 export async function getVendorSlugs(): Promise<string[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('vendors')
     .select('slug')
@@ -251,6 +271,7 @@ export async function getVendorSlugs(): Promise<string[]> {
 }
 
 export async function getRelatedVendors(categorySlug: string, excludeSlug: string, limit = 4): Promise<Vendor[]> {
+  if (!isSupabaseReady()) return [];
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
