@@ -5,6 +5,8 @@ import StarRating from '@/components/StarRating';
 import ClaimListing from '@/components/ClaimListing';
 import { generateVendorJsonLd, generateVendorBreadcrumbJsonLd, generateLocalBusinessJsonLd } from '@/lib/seo';
 import TrackedLink from '@/components/TrackedLink';
+import VendorReviews from '@/components/VendorReviews';
+import WriteReview from '@/components/WriteReview';
 
 // Revalidate every 60 seconds
 export const revalidate = 60;
@@ -333,6 +335,23 @@ export default async function VendorPage(props: VendorPageProps) {
                 </div>
               )}
 
+              {/* Reviews */}
+              <VendorReviews
+                vendorSlug={vendor.slug}
+                vendorName={vendor.name}
+                currentRating={vendor.rating}
+                reviewCount={vendor.review_count}
+              />
+
+              {/* Write a Review */}
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-1">Share Your Experience</h2>
+                <p className="text-sm text-gray-500 mb-4">
+                  Used {vendor.name} at your facility? Help other operators by leaving a review.
+                </p>
+                <WriteReview vendorSlug={vendor.slug} vendorName={vendor.name} />
+              </div>
+
               {/* Related Vendors */}
               {relatedVendors.length > 0 && (
                 <div className="bg-white rounded-lg shadow-sm p-6">
@@ -443,6 +462,9 @@ export default async function VendorPage(props: VendorPageProps) {
                     Opens in a new window
                   </p>
                 </div>
+
+                {/* Write a Review — sidebar shortcut */}
+                <WriteReview vendorSlug={vendor.slug} vendorName={vendor.name} />
 
                 {/* Claim This Listing - only show if not verified/claimed */}
                 {!vendor.verified && (

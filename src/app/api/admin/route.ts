@@ -34,13 +34,17 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const table = searchParams.get('table');
 
-  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers', 'vendor_clicks'].includes(table)) {
+  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers', 'vendor_clicks', 'vendor_reviews'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
   }
 
   const supabase = getAdminClient();
 
-  const orderColumn = table === 'newsletter_subscribers' ? 'subscribed_at' : table === 'vendor_clicks' ? 'clicked_at' : 'submitted_at';
+  const orderColumn =
+    table === 'newsletter_subscribers' ? 'subscribed_at' :
+    table === 'vendor_clicks' ? 'clicked_at' :
+    table === 'vendor_reviews' ? 'created_at' :
+    'submitted_at';
   const { data, error } = await supabase
     .from(table)
     .select('*')
@@ -61,13 +65,27 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { table, id, status } = body;
+  const { table, id, status, approved } = body;
 
-  if (!table || !['submissions', 'claims'].includes(table)) {
+  if (!table || !['submissions', 'claims', 'vendor_reviews'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
   }
 
   const supabase = getAdminClient();
+
+  // vendor_reviews uses approved boolean, not status string
+  if (table === 'vendor_reviews') {
+    const { error } = await supabase
+      .from('vendor_reviews')
+      .update({ approved: approved === true })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating review:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ success: true });
+  }
 
   const { error } = await supabase
     .from(table)
@@ -226,7 +244,7 @@ export async function DELETE(request: NextRequest) {
   const body = await request.json();
   const { table, id } = body;
 
-  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers'].includes(table)) {
+  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers', 'vendor_reviews'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
   }
 

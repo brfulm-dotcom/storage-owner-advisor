@@ -75,16 +75,29 @@ export interface Vendor {
 
 export async function getCategories(): Promise<Category[]> {
   if (!isSupabaseReady()) return [];
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .order('name');
 
-  if (error) {
-    console.error('Error fetching categories:', error);
+  // Fetch categories and live vendor counts in parallel
+  const [catResult, vendorResult] = await Promise.all([
+    supabase.from('categories').select('*').eq('visible', true).order('name'),
+    supabase.from('vendors').select('category_slug').eq('active', true),
+  ]);
+
+  if (catResult.error) {
+    console.error('Error fetching categories:', catResult.error);
     return [];
   }
-  return data || [];
+
+  // Build live count map from actual active vendors
+  const countMap: Record<string, number> = {};
+  for (const v of vendorResult.data || []) {
+    countMap[v.category_slug] = (countMap[v.category_slug] || 0) + 1;
+  }
+
+  // Override stored vendor_count with live count so it's always accurate
+  return (catResult.data || []).map(cat => ({
+    ...cat,
+    vendor_count: countMap[cat.slug] || 0,
+  }));
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
