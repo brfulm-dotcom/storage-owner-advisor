@@ -5,6 +5,7 @@ import VendorCard from '@/components/VendorCard';
 import type { Vendor } from '@/lib/supabase';
 
 type SortOption = 'rating' | 'reviews' | 'name-asc' | 'name-desc' | 'verified' | 'newest';
+type ServiceAreaFilter = 'all' | 'national' | 'local';
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'rating', label: 'Highest Rated' },
@@ -13,6 +14,12 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'name-desc', label: 'Name (Z-A)' },
   { value: 'verified', label: 'Verified First' },
   { value: 'newest', label: 'Newest Added' },
+];
+
+const SERVICE_AREA_OPTIONS: { value: ServiceAreaFilter; label: string; icon: string }[] = [
+  { value: 'all',      label: 'All',               icon: '' },
+  { value: 'national', label: 'National / Online',  icon: '🌐' },
+  { value: 'local',    label: 'Local / Regional',   icon: '📍' },
 ];
 
 function sortVendors(vendors: Vendor[], sort: SortOption): Vendor[] {
@@ -50,15 +57,54 @@ interface SortableVendorGridProps {
 
 export default function SortableVendorGrid({ vendors, defaultSort = 'rating', showCount = true }: SortableVendorGridProps) {
   const [sortBy, setSortBy] = useState<SortOption>(defaultSort);
+  const [serviceArea, setServiceArea] = useState<ServiceAreaFilter>('all');
 
-  const sortedVendors = useMemo(() => sortVendors(vendors, sortBy), [vendors, sortBy]);
+  // Only show the service area filter if vendors have mixed coverage types
+  const hasLocalVendors    = useMemo(() => vendors.some(v => v.service_area === 'local'),    [vendors]);
+  const hasNationalVendors = useMemo(() => vendors.some(v => v.service_area === 'national'), [vendors]);
+  const showServiceFilter  = hasLocalVendors && hasNationalVendors;
+
+  const filteredVendors = useMemo(() => {
+    if (serviceArea === 'all') return vendors;
+    return vendors.filter(v => v.service_area === serviceArea);
+  }, [vendors, serviceArea]);
+
+  const sortedVendors = useMemo(() => sortVendors(filteredVendors, sortBy), [filteredVendors, sortBy]);
 
   return (
     <>
+      {/* Service area filter — only shown when both local and national vendors exist */}
+      {showServiceFilter && (
+        <div className="mb-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 mr-1">Coverage:</span>
+            {SERVICE_AREA_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setServiceArea(opt.value)}
+                className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                  serviceArea === opt.value
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600'
+                }`}
+              >
+                {opt.icon && <span>{opt.icon}</span>}
+                {opt.label}
+              </button>
+            ))}
+            {serviceArea === 'local' && (
+              <span className="text-xs text-gray-500 ml-2">
+                Tip: call ahead — local suppliers can often fulfill same-day
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
         {showCount && (
           <p className="text-gray-600">
-            Showing {vendors.length} vendor{vendors.length !== 1 ? 's' : ''}
+            Showing {sortedVendors.length}{sortedVendors.length !== vendors.length ? ` of ${vendors.length}` : ''} vendor{vendors.length !== 1 ? 's' : ''}
           </p>
         )}
         <div className="flex items-center gap-2">
@@ -77,11 +123,24 @@ export default function SortableVendorGrid({ vendors, defaultSort = 'rating', sh
           </select>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedVendors.map((vendor) => (
-          <VendorCard key={vendor.slug} vendor={vendor} />
-        ))}
-      </div>
+
+      {sortedVendors.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg mb-2">No vendors match this filter.</p>
+          <button
+            onClick={() => setServiceArea('all')}
+            className="text-blue-600 hover:underline text-sm"
+          >
+            Show all vendors
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sortedVendors.map((vendor) => (
+            <VendorCard key={vendor.slug} vendor={vendor} />
+          ))}
+        </div>
+      )}
     </>
   );
 }
