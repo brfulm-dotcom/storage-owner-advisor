@@ -30,6 +30,7 @@ export interface Category {
   icon: string;
   vendor_count: number;
   visible: boolean;
+  sort_order?: number;
   created_at?: string;
 }
 
@@ -78,7 +79,7 @@ export async function getCategories(): Promise<Category[]> {
 
   // Fetch categories and live vendor counts in parallel
   const [catResult, vendorResult] = await Promise.all([
-    supabase.from('categories').select('*').eq('visible', true).order('name'),
+    supabase.from('categories').select('*').eq('visible', true).order('sort_order', { ascending: true, nullsFirst: false }),
     supabase.from('vendors').select('category_slug').eq('active', true),
   ]);
 
