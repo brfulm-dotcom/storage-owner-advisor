@@ -29,7 +29,6 @@ export async function generateStaticParams() {
     for (let i = 0; i < topVendors.length; i++) {
       for (let j = i + 1; j < topVendors.length; j++) {
         params.push({ slug: `${topVendors[i].slug}-vs-${topVendors[j].slug}` });
-        params.push({ slug: `${topVendors[j].slug}-vs-${topVendors[i].slug}` });
       }
     }
   }
@@ -50,10 +49,15 @@ export async function generateMetadata(props: ComparePageProps): Promise<Metadat
   if (!vendor1 || !vendor2) return { title: 'Comparison Not Found' };
 
   const year = new Date().getFullYear();
+  // Always canonicalize to alphabetical order to avoid a-vs-b / b-vs-a duplicates
+  const canonicalSlug = [parsed.slug1, parsed.slug2].sort().join('-vs-');
 
   return {
     title: `${vendor1.name} vs ${vendor2.name} (${year}) | StorageOwnerAdvisor`,
     description: `Compare ${vendor1.name} and ${vendor2.name} side by side. See features, pricing, ratings, pros & cons to find the best solution for your storage facility.`,
+    alternates: {
+      canonical: `https://www.storageowneradvisor.com/compare/${canonicalSlug}`,
+    },
     openGraph: {
       title: `${vendor1.name} vs ${vendor2.name} (${year})`,
       description: `Side-by-side comparison of ${vendor1.name} and ${vendor2.name} for self-storage facilities.`,

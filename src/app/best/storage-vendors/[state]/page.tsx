@@ -37,6 +37,9 @@ export async function generateMetadata(props: StateOverviewProps): Promise<Metad
   return {
     title: `Best Storage Facility Vendors in ${stateName} (${year}) | StorageOwnerAdvisor`,
     description: `Find the best self-storage vendors in ${stateName}. Compare software, security, construction, insurance, and more for your storage facility.`,
+    alternates: {
+      canonical: `https://www.storageowneradvisor.com/best/storage-vendors/${state}`,
+    },
     openGraph: {
       title: `Best Storage Facility Vendors in ${stateName} (${year})`,
       description: `Compare top storage facility vendors across all categories in ${stateName}.`,
@@ -50,10 +53,11 @@ export default async function StateOverviewPage(props: StateOverviewProps) {
   const stateName = slugToName(state);
   const year = new Date().getFullYear();
 
-  const [vendors, categories, cities] = await Promise.all([
+  const [vendors, categories, cities, allStates] = await Promise.all([
     getVendorsByState(stateName),
     getCategories(),
     getUniqueCitiesByState(stateName),
+    getUniqueStates(),
   ]);
 
   // Group vendors by category
@@ -176,33 +180,44 @@ export default async function StateOverviewPage(props: StateOverviewProps) {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            {/* Cities */}
-            {cities.length > 0 && (
+            {/* Cities — link into the first visible category for this state */}
+            {cities.length > 0 && categories.filter((c) => c.visible)[0] && (
               <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
                 <h3 className="font-bold text-gray-900 mb-3">
                   Cities in {stateName}
                 </h3>
                 <div className="space-y-1">
-                  {cities.map((city) => (
-                    <span key={city} className="block text-sm text-gray-600">
+                  {cities.slice(0, 10).map((city) => (
+                    <Link
+                      key={city}
+                      href={`/best/${categories.filter((c) => c.visible)[0].slug}/${city.toLowerCase().replace(/\s+/g, '-')}-${stateToSlug(stateName)}`}
+                      className="block text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                    >
                       {city}
-                    </span>
+                    </Link>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Other states */}
+            {/* Other states — dynamically generated */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
               <h3 className="font-bold text-gray-900 mb-3">
                 Other States
               </h3>
               <div className="space-y-1">
-                <Link href="/best/storage-vendors/arizona" className="block text-sm text-blue-600 hover:underline">Arizona</Link>
-                <Link href="/best/storage-vendors/california" className="block text-sm text-blue-600 hover:underline">California</Link>
-                <Link href="/best/storage-vendors/florida" className="block text-sm text-blue-600 hover:underline">Florida</Link>
-                <Link href="/best/storage-vendors/new-york" className="block text-sm text-blue-600 hover:underline">New York</Link>
-                <Link href="/best/storage-vendors/texas" className="block text-sm text-blue-600 hover:underline">Texas</Link>
+                {allStates
+                  .filter((s) => s.toLowerCase() !== stateName.toLowerCase())
+                  .slice(0, 10)
+                  .map((s) => (
+                    <Link
+                      key={s}
+                      href={`/best/storage-vendors/${stateToSlug(s)}`}
+                      className="block text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                    >
+                      {s}
+                    </Link>
+                  ))}
               </div>
             </div>
 

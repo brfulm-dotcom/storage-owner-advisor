@@ -70,6 +70,9 @@ export async function generateMetadata(props: SEOPageProps): Promise<Metadata> {
   return {
     title: `Best ${categoryName} in ${stateName} (${year}) | StorageOwnerAdvisor`,
     description: `Compare the top ${categoryName.toLowerCase()} providers in ${stateName}. Read reviews, compare features, and find the best solution for your storage facility.`,
+    alternates: {
+      canonical: `https://www.storageowneradvisor.com/best/${category}/${state}`,
+    },
     openGraph: {
       title: `Best ${categoryName} in ${stateName} (${year})`,
       description: `Find and compare the best ${categoryName.toLowerCase()} providers serving ${stateName} storage facilities.`,
