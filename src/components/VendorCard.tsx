@@ -21,6 +21,12 @@ function trackClick(vendorSlug: string, vendorName: string, clickType: string) {
   }).catch(() => {});
 }
 
+function ensureUrl(url: string | null | undefined): string {
+  if (!url) return '#';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `https://${url}`;
+}
+
 export default function VendorCard({ vendor, categoryName }: VendorCardProps) {
   const isFeatured = vendor.tier === 'featured' || vendor.tier === 'premium';
 
@@ -84,7 +90,7 @@ export default function VendorCard({ vendor, categoryName }: VendorCardProps) {
             Details
           </Link>
           <a
-            href={vendor.affiliate_url || vendor.website}
+            href={ensureUrl(vendor.affiliate_url || vendor.website)}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackClick(vendor.slug, vendor.name, vendor.affiliate_url ? 'affiliate' : 'website')}
