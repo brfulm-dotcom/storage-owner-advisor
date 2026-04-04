@@ -18,7 +18,7 @@ export default function HeroSection() {
   const popularSearches = [
     { label: 'Management Software', slug: 'management-software' },
     { label: 'Security Systems', slug: 'security-systems' },
-    { label: 'Construction', slug: 'construction' },
+    { label: 'Moving Supplies', slug: 'moving-supplies' },
     { label: 'Insurance', slug: 'insurance' },
   ];
 
