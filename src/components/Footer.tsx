@@ -50,17 +50,6 @@ export default function Footer() {
             <p className="text-sm text-gray-400 mb-4">
               StorageOwnerAdvisor is the #1 B2B directory for self-storage facility owners and operators to discover trusted vendors and service providers.
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="hover:text-orange-500 transition-colors">
-                Twitter
-              </a>
-              <a href="#" className="hover:text-orange-500 transition-colors">
-                LinkedIn
-              </a>
-              <a href="#" className="hover:text-orange-500 transition-colors">
-                Facebook
-              </a>
-            </div>
           </div>
 
           {/* Categories Column */}
