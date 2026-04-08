@@ -158,6 +158,17 @@ export default function Footer() {
           )}
         </div>
 
+        {/* Affiliate Disclaimer */}
+        <div className="border-t border-gray-800 pt-6 mb-6">
+          <p className="text-xs text-gray-500 text-center max-w-3xl mx-auto">
+            Some links on this site are affiliate links. We may earn a commission at no extra cost to you if you make a purchase through these links. This does not influence our recommendations. See our{' '}
+            <Link href="/affiliate-disclosure" className="text-gray-400 underline hover:text-orange-500 transition-colors">
+              Affiliate Disclosure
+            </Link>{' '}
+            for more details.
+          </p>
+        </div>
+
         {/* Copyright */}
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-400">
@@ -174,6 +185,12 @@ export default function Footer() {
                 className="hover:text-orange-500 transition-colors"
               >
                 Terms of Service
+              </Link>
+              <Link
+                href="/affiliate-disclosure"
+                className="hover:text-orange-500 transition-colors"
+              >
+                Affiliate Disclosure
               </Link>
             </div>
           </div>
