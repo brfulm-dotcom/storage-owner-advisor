@@ -5,11 +5,6 @@ import { getCategoryBySlug, getVendorsByCategory, getCategorySlugs } from '@/lib
 import SortableVendorGrid from '@/components/SortableVendorGrid';
 import { generateCategoryJsonLd, generateCategoryBreadcrumbJsonLd } from '@/lib/seo';
 
-// Map category slugs to hero background images
-const categoryHeroImages: Record<string, string> = {
-  'security-access-control': '/category-security.jpg',
-};
-
 // Revalidate every 60 seconds (picks up new vendors without redeploy)
 export const revalidate = 60;
 
@@ -111,10 +106,10 @@ export default async function CategoryPage(props: CategoryPageProps) {
       </div>
 
       {/* Category Header */}
-      {categoryHeroImages[category.slug] ? (
+      {category.hero_image ? (
         <div className="relative py-10 sm:py-14 md:py-16 px-4 sm:px-6 lg:px-8 border-b border-gray-200 overflow-hidden">
           <Image
-            src={categoryHeroImages[category.slug]}
+            src={`/${category.hero_image}`}
             alt=""
             fill
             className="object-cover"

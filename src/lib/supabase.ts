@@ -31,6 +31,7 @@ export interface Category {
   vendor_count: number;
   visible: boolean;
   sort_order?: number;
+  hero_image?: string | null;
   created_at?: string;
 }
 
