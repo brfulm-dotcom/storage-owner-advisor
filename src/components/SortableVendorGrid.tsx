@@ -4,10 +4,11 @@ import { useState, useMemo } from 'react';
 import VendorCard from '@/components/VendorCard';
 import type { Vendor } from '@/lib/supabase';
 
-type SortOption = 'rating' | 'reviews' | 'name-asc' | 'name-desc' | 'verified' | 'newest';
+type SortOption = 'default' | 'rating' | 'reviews' | 'name-asc' | 'name-desc' | 'verified' | 'newest';
 type ServiceAreaFilter = 'all' | 'national' | 'local';
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'default', label: 'Recommended' },
   { value: 'rating', label: 'Highest Rated' },
   { value: 'reviews', label: 'Most Reviewed' },
   { value: 'name-asc', label: 'Name (A-Z)' },
@@ -22,9 +23,29 @@ const SERVICE_AREA_OPTIONS: { value: ServiceAreaFilter; label: string; icon: str
   { value: 'local',    label: 'Local / Regional',   icon: '📍' },
 ];
 
+// Tier priority: featured first, then premium, then free
+function getTierPriority(tier?: string): number {
+  switch (tier) {
+    case 'featured': return 0;
+    case 'premium': return 1;
+    default: return 2;
+  }
+}
+
 function sortVendors(vendors: Vendor[], sort: SortOption): Vendor[] {
   const sorted = [...vendors];
   switch (sort) {
+    case 'default':
+      // Featured → Premium → Free, then by rating, review count, name
+      return sorted.sort((a, b) => {
+        const tierDiff = getTierPriority(a.tier) - getTierPriority(b.tier);
+        if (tierDiff !== 0) return tierDiff;
+        const ratingDiff = (b.rating || 0) - (a.rating || 0);
+        if (ratingDiff !== 0) return ratingDiff;
+        const reviewDiff = (b.review_count || 0) - (a.review_count || 0);
+        if (reviewDiff !== 0) return reviewDiff;
+        return a.name.localeCompare(b.name);
+      });
     case 'rating':
       return sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     case 'reviews':
@@ -55,7 +76,7 @@ interface SortableVendorGridProps {
   showCount?: boolean;
 }
 
-export default function SortableVendorGrid({ vendors, defaultSort = 'rating', showCount = true }: SortableVendorGridProps) {
+export default function SortableVendorGrid({ vendors, defaultSort = 'default', showCount = true }: SortableVendorGridProps) {
   const [sortBy, setSortBy] = useState<SortOption>(defaultSort);
   const [serviceArea, setServiceArea] = useState<ServiceAreaFilter>('all');
 
