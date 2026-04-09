@@ -1,8 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getCategoryBySlug, getVendorsByCategory, getCategorySlugs } from '@/lib/supabase';
 import SortableVendorGrid from '@/components/SortableVendorGrid';
 import { generateCategoryJsonLd, generateCategoryBreadcrumbJsonLd } from '@/lib/seo';
+
+// Map category slugs to hero background images
+const categoryHeroImages: Record<string, string> = {
+  'security-access-control': '/category-security.jpg',
+};
 
 // Revalidate every 60 seconds (picks up new vendors without redeploy)
 export const revalidate = 60;
@@ -105,19 +111,44 @@ export default async function CategoryPage(props: CategoryPageProps) {
       </div>
 
       {/* Category Header */}
-      <div className="bg-white py-12 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-start gap-6 mb-6">
-            <div className="text-5xl">{category.icon}</div>
-            <div className="flex-1">
-              <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
-                {category.name}
-              </h1>
-              <p className="text-xl text-gray-600">{category.description}</p>
+      {categoryHeroImages[category.slug] ? (
+        <div className="relative py-10 sm:py-14 md:py-16 px-4 sm:px-6 lg:px-8 border-b border-gray-200 overflow-hidden">
+          <Image
+            src={categoryHeroImages[category.slug]}
+            alt=""
+            fill
+            className="object-cover"
+            priority
+            quality={85}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/70 to-gray-900/80" />
+          <div className="relative max-w-7xl mx-auto">
+            <div className="flex items-start gap-6 mb-2">
+              <div className="text-5xl">{category.icon}</div>
+              <div className="flex-1">
+                <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 drop-shadow-lg">
+                  {category.name}
+                </h1>
+                <p className="text-lg text-blue-100">{category.description}</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="bg-white py-12 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-start gap-6 mb-6">
+              <div className="text-5xl">{category.icon}</div>
+              <div className="flex-1">
+                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
+                  {category.name}
+                </h1>
+                <p className="text-xl text-gray-600">{category.description}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Vendors Grid */}
       <div className="py-12 px-4 sm:px-6 lg:px-8">
