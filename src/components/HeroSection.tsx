@@ -24,7 +24,7 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="relative py-10 sm:py-14 md:py-20 overflow-hidden">
+    <section className="relative py-6 sm:py-8 md:py-10 overflow-hidden">
       {/* Background Image */}
       <Image
         src="/hero-bg.jpg"
@@ -39,13 +39,13 @@ export default function HeroSection() {
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Headline */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 text-center drop-shadow-lg">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 text-center drop-shadow-lg">
           Find Trusted Vendors for Your Storage Facility
         </h1>
 
         {/* Subheadline */}
         <p className="text-base sm:text-lg text-blue-100 text-center mb-6 max-w-2xl mx-auto">
-          The #1 directory of vetted service providers, equipment suppliers, and technology partners for self-storage owners and operators.
+          The leading directory of vetted service providers, equipment suppliers, and technology partners for self-storage owners and operators.
         </p>
 
         {/* Search Bar */}
