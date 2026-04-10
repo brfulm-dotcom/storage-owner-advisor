@@ -4,6 +4,7 @@ import { getBlogPostBySlug, getBlogPostSlugs, getCategoryBySlug } from '@/lib/su
 import { notFound } from 'next/navigation';
 
 export const revalidate = 60;
+export const dynamicParams = true;
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
