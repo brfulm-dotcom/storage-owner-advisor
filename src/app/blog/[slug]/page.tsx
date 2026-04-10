@@ -49,6 +49,64 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: post.title,
+            description: post.meta_description || post.excerpt,
+            author: {
+              '@type': 'Organization',
+              name: post.author || 'StorageOwnerAdvisor Team',
+              url: 'https://www.storageowneradvisor.com',
+            },
+            publisher: {
+              '@type': 'Organization',
+              name: 'StorageOwnerAdvisor',
+              url: 'https://www.storageowneradvisor.com',
+            },
+            datePublished: post.published_at || undefined,
+            dateModified: post.published_at || undefined,
+            mainEntityOfPage: {
+              '@type': 'WebPage',
+              '@id': `https://www.storageowneradvisor.com/blog/${params.slug}`,
+            },
+            ...(category ? { articleSection: category.name } : {}),
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Home',
+                item: 'https://www.storageowneradvisor.com',
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Blog',
+                item: 'https://www.storageowneradvisor.com/blog',
+              },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: post.title,
+                item: `https://www.storageowneradvisor.com/blog/${params.slug}`,
+              },
+            ],
+          }),
+        }}
+      />
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
