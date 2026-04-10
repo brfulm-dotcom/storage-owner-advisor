@@ -35,6 +35,21 @@ export interface Category {
   created_at?: string;
 }
 
+export interface BlogPost {
+  id?: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category_slug?: string | null;
+  author: string;
+  featured_image?: string | null;
+  meta_description?: string | null;
+  status: 'draft' | 'published';
+  published_at?: string | null;
+  created_at?: string;
+}
+
 export interface Vendor {
   id?: number;
   slug: string;
@@ -302,4 +317,53 @@ export async function getRelatedVendors(categorySlug: string, excludeSlug: strin
     return [];
   }
   return data || [];
+}
+
+// =============================================================
+// BLOG POST QUERIES
+// =============================================================
+
+export async function getBlogPosts(): Promise<BlogPost[]> {
+  if (!isSupabaseReady()) return [];
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching blog posts:', error);
+    return [];
+  }
+  return data || [];
+}
+
+export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  if (!isSupabaseReady()) return null;
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .single();
+
+  if (error) {
+    console.error('Error fetching blog post:', error);
+    return null;
+  }
+  return data;
+}
+
+export async function getBlogPostSlugs(): Promise<string[]> {
+  if (!isSupabaseReady()) return [];
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('slug')
+    .eq('status', 'published');
+
+  if (error) {
+    console.error('Error fetching blog post slugs:', error);
+    return [];
+  }
+  return (data || []).map((p) => p.slug);
 }

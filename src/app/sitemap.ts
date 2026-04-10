@@ -4,7 +4,7 @@
 // =============================================================
 
 import { MetadataRoute } from 'next';
-import { getCategories, getVendors, getVendorsByCategory, getUniqueStates, getCategorySlugs } from '@/lib/supabase';
+import { getCategories, getVendors, getVendorsByCategory, getUniqueStates, getCategorySlugs, getBlogPostSlugs } from '@/lib/supabase';
 
 const BASE_URL = 'https://www.storageowneradvisor.com';
 
@@ -14,11 +14,12 @@ function stateToSlug(state: string): string {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch data from Supabase
-  const [categories, vendors, states, categorySlugs] = await Promise.all([
+  const [categories, vendors, states, categorySlugs, blogSlugs] = await Promise.all([
     getCategories(),
     getVendors(),
     getUniqueStates(),
     getCategorySlugs(),
+    getBlogPostSlugs(),
   ]);
 
   // Static pages
@@ -71,6 +72,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
+  // Blog post pages
+  const blogUrls = blogSlugs.map((slug) => ({
+    url: `${BASE_URL}/blog/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
+
   // Comparison pages - management software (highest value)
   const softwareVendors = await getVendorsByCategory('management-software');
   const topSoftware = softwareVendors.slice(0, 10);
@@ -92,6 +101,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...vendorPages,
     ...stateOverviewPages,
     ...stateCategoryPages,
+    ...blogUrls,
     ...comparePages,
   ];
 }
