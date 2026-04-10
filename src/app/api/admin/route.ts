@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const table = searchParams.get('table');
 
-  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers', 'vendor_clicks', 'vendor_reviews'].includes(table)) {
+  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers', 'vendor_clicks', 'vendor_reviews', 'blog_posts'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
   }
 
@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
     table === 'newsletter_subscribers' ? 'subscribed_at' :
     table === 'vendor_clicks' ? 'clicked_at' :
     table === 'vendor_reviews' ? 'created_at' :
+    table === 'blog_posts' ? 'created_at' :
     'submitted_at';
   const { data, error } = await supabase
     .from(table)
@@ -67,11 +68,26 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json();
   const { table, id, status, approved } = body;
 
-  if (!table || !['submissions', 'claims', 'vendor_reviews'].includes(table)) {
+  if (!table || !['submissions', 'claims', 'vendor_reviews', 'blog_posts'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
   }
 
   const supabase = getAdminClient();
+
+  // blog_posts updates all fields passed in the body
+  if (table === 'blog_posts') {
+    const { table: _, id: postId, ...updateFields } = body;
+    const { error } = await supabase
+      .from('blog_posts')
+      .update(updateFields)
+      .eq('id', postId);
+
+    if (error) {
+      console.error('Error updating blog post:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ success: true });
+  }
 
   // vendor_reviews uses approved boolean, not status string
   if (table === 'vendor_reviews') {
@@ -220,6 +236,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
+  if (action === 'create_blog_post') {
+    const { title, slug, excerpt, content, category_slug, author, meta_description, status: postStatus, published_at } = body;
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .insert({
+        title,
+        slug,
+        excerpt,
+        content,
+        category_slug: category_slug || null,
+        author: author || 'StorageOwnerAdvisor Team',
+        meta_description: meta_description || null,
+        status: postStatus || 'draft',
+        published_at: published_at || null,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating blog post:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ success: true, data });
+  }
+
   if (action === 'revalidate_seo') {
     try {
       // Revalidate all SEO landing pages, category pages, and homepage
@@ -244,7 +286,7 @@ export async function DELETE(request: NextRequest) {
   const body = await request.json();
   const { table, id } = body;
 
-  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers', 'vendor_reviews'].includes(table)) {
+  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers', 'vendor_reviews', 'blog_posts'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
   }
 

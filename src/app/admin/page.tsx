@@ -58,7 +58,21 @@ interface ClickData {
   details_clicks: number;
 }
 
-type Tab = 'submissions' | 'claims' | 'contacts' | 'newsletter' | 'analytics';
+interface BlogPost {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category_slug: string | null;
+  author: string;
+  meta_description: string | null;
+  status: 'draft' | 'published';
+  published_at: string | null;
+  created_at: string;
+}
+
+type Tab = 'submissions' | 'claims' | 'contacts' | 'newsletter' | 'analytics' | 'blog';
 
 export default function AdminPage() {
   // ---- Auth State ----
@@ -77,6 +91,20 @@ export default function AdminPage() {
   const [clickData, setClickData] = useState<ClickData[]>([]);
   const [totalClicks, setTotalClicks] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [showPostForm, setShowPostForm] = useState(false);
+  const [postForm, setPostForm] = useState({
+    title: '',
+    slug: '',
+    excerpt: '',
+    content: '',
+    category_slug: '',
+    author: 'StorageOwnerAdvisor Team',
+    meta_description: '',
+    status: 'draft' as 'draft' | 'published',
+  });
+  const [showPreview, setShowPreview] = useState(false);
 
   // ---- Stored password for API calls ----
   const [storedPassword, setStoredPassword] = useState('');
@@ -151,6 +179,7 @@ export default function AdminPage() {
           claims: 'claims',
           contacts: 'contact_messages',
           newsletter: 'newsletter_subscribers',
+          blog: 'blog_posts',
         };
 
         const result = await apiCall('GET', { table: tableMap[activeTab] });
@@ -168,6 +197,9 @@ export default function AdminPage() {
               break;
             case 'newsletter':
               setSubscribers(result.data);
+              break;
+            case 'blog':
+              setBlogPosts(result.data);
               break;
           }
         }
@@ -226,6 +258,87 @@ export default function AdminPage() {
     if (!confirm('Are you sure you want to delete this record?')) return;
     await apiCall('DELETE', undefined, { table, id });
     fetchData();
+  };
+
+  // ---- Blog post helpers ----
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  };
+
+  const openNewPostForm = () => {
+    setEditingPost(null);
+    setPostForm({
+      title: '',
+      slug: '',
+      excerpt: '',
+      content: '',
+      category_slug: '',
+      author: 'StorageOwnerAdvisor Team',
+      meta_description: '',
+      status: 'draft',
+    });
+    setShowPostForm(true);
+    setShowPreview(false);
+  };
+
+  const openEditPostForm = (post: BlogPost) => {
+    setEditingPost(post);
+    setPostForm({
+      title: post.title,
+      slug: post.slug,
+      excerpt: post.excerpt,
+      content: post.content,
+      category_slug: post.category_slug || '',
+      author: post.author,
+      meta_description: post.meta_description || '',
+      status: post.status,
+    });
+    setShowPostForm(true);
+    setShowPreview(false);
+  };
+
+  const savePost = async () => {
+    if (!postForm.title || !postForm.slug || !postForm.content) {
+      alert('Title, slug, and content are required.');
+      return;
+    }
+
+    try {
+      if (editingPost) {
+        // Update existing
+        await apiCall('PATCH', undefined, {
+          table: 'blog_posts',
+          id: editingPost.id,
+          ...postForm,
+          category_slug: postForm.category_slug || null,
+          meta_description: postForm.meta_description || null,
+          published_at: postForm.status === 'published' && !editingPost.published_at
+            ? new Date().toISOString()
+            : editingPost.published_at,
+        });
+        alert('Post updated!');
+      } else {
+        // Create new
+        await apiCall('POST', undefined, {
+          action: 'create_blog_post',
+          ...postForm,
+          category_slug: postForm.category_slug || null,
+          meta_description: postForm.meta_description || null,
+          published_at: postForm.status === 'published' ? new Date().toISOString() : null,
+        });
+        alert('Post created!');
+      }
+      setShowPostForm(false);
+      setEditingPost(null);
+      fetchData();
+    } catch {
+      alert('Failed to save post.');
+    }
   };
 
   // ---- Format date ----
@@ -385,6 +498,21 @@ export default function AdminPage() {
               {totalClicks > 0 && (
                 <span className="ml-2 bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-0.5 rounded-full">
                   {totalClicks}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('blog')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'blog'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Blog
+              {blogPosts.length > 0 && (
+                <span className="ml-2 bg-indigo-100 text-indigo-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {blogPosts.length}
                 </span>
               )}
             </button>
@@ -792,6 +920,262 @@ export default function AdminPage() {
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ======== BLOG TAB ======== */}
+            {activeTab === 'blog' && (
+              <div>
+                {showPostForm ? (
+                  /* ---- Post Editor Form ---- */
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {editingPost ? 'Edit Post' : 'New Post'}
+                      </h2>
+                      <button
+                        onClick={() => { setShowPostForm(false); setEditingPost(null); }}
+                        className="text-sm text-gray-600 hover:text-gray-800 font-medium"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+                      {/* Title */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <input
+                          type="text"
+                          value={postForm.title}
+                          onChange={(e) => {
+                            const title = e.target.value;
+                            setPostForm(prev => ({
+                              ...prev,
+                              title,
+                              slug: editingPost ? prev.slug : generateSlug(title),
+                            }));
+                          }}
+                          className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Post title"
+                        />
+                      </div>
+
+                      {/* Slug */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL)</label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-500">/blog/</span>
+                          <input
+                            type="text"
+                            value={postForm.slug}
+                            onChange={(e) => setPostForm(prev => ({ ...prev, slug: e.target.value }))}
+                            className="flex-1 border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="post-url-slug"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Category & Status row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Category (optional)</label>
+                          <input
+                            type="text"
+                            value={postForm.category_slug}
+                            onChange={(e) => setPostForm(prev => ({ ...prev, category_slug: e.target.value }))}
+                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="e.g. management-software"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
+                          <input
+                            type="text"
+                            value={postForm.author}
+                            onChange={(e) => setPostForm(prev => ({ ...prev, author: e.target.value }))}
+                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                          <select
+                            value={postForm.status}
+                            onChange={(e) => setPostForm(prev => ({ ...prev, status: e.target.value as 'draft' | 'published' }))}
+                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                          >
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Excerpt */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Excerpt (shown on blog listing)</label>
+                        <textarea
+                          value={postForm.excerpt}
+                          onChange={(e) => setPostForm(prev => ({ ...prev, excerpt: e.target.value }))}
+                          rows={2}
+                          className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="A brief summary of the post..."
+                        />
+                      </div>
+
+                      {/* Meta Description */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Meta Description (SEO) <span className="text-gray-400 font-normal">— {postForm.meta_description.length}/160</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={postForm.meta_description}
+                          onChange={(e) => setPostForm(prev => ({ ...prev, meta_description: e.target.value }))}
+                          maxLength={160}
+                          className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="SEO description (max 160 characters)"
+                        />
+                      </div>
+
+                      {/* Content with Preview toggle */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-sm font-medium text-gray-700">Content (HTML)</label>
+                          <button
+                            onClick={() => setShowPreview(!showPreview)}
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                          >
+                            {showPreview ? 'Edit' : 'Preview'}
+                          </button>
+                        </div>
+                        {showPreview ? (
+                          <div className="border border-gray-300 rounded-md p-6 min-h-[300px] bg-white prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-li:text-gray-700 prose-strong:text-gray-900"
+                            dangerouslySetInnerHTML={{ __html: postForm.content }}
+                          />
+                        ) : (
+                          <textarea
+                            value={postForm.content}
+                            onChange={(e) => setPostForm(prev => ({ ...prev, content: e.target.value }))}
+                            rows={20}
+                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                            placeholder="<h2>Your heading</h2>\n<p>Your content...</p>"
+                          />
+                        )}
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-3 pt-2">
+                        <button
+                          onClick={savePost}
+                          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
+                        >
+                          {editingPost ? 'Update Post' : 'Create Post'}
+                        </button>
+                        <button
+                          onClick={() => { setShowPostForm(false); setEditingPost(null); }}
+                          className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-md transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* ---- Post List ---- */
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        Blog Posts ({blogPosts.length})
+                      </h2>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={fetchData}
+                          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                          Refresh
+                        </button>
+                        <button
+                          onClick={openNewPostForm}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md transition-colors"
+                        >
+                          + New Post
+                        </button>
+                      </div>
+                    </div>
+
+                    {blogPosts.length === 0 ? (
+                      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                        <p className="text-gray-500 mb-4">No blog posts yet.</p>
+                        <button
+                          onClick={openNewPostForm}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md transition-colors"
+                        >
+                          Create Your First Post
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {blogPosts.map((post) => (
+                          <div key={post.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-3 mb-1">
+                                  <h3 className="text-base font-semibold text-gray-900 truncate">{post.title}</h3>
+                                  <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full flex-shrink-0 ${
+                                    post.status === 'published'
+                                      ? 'bg-green-100 text-green-800'
+                                      : 'bg-yellow-100 text-yellow-800'
+                                  }`}>
+                                    {post.status}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-gray-500">
+                                  <span>/blog/{post.slug}</span>
+                                  {post.category_slug && (
+                                    <>
+                                      <span>·</span>
+                                      <span className="capitalize">{post.category_slug.replace(/-/g, ' ')}</span>
+                                    </>
+                                  )}
+                                  {post.published_at && (
+                                    <>
+                                      <span>·</span>
+                                      <span>{formatDate(post.published_at)}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {post.status === 'published' && (
+                                  <a
+                                    href={`/blog/${post.slug}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-md transition-colors"
+                                  >
+                                    View
+                                  </a>
+                                )}
+                                <button
+                                  onClick={() => openEditPostForm(post)}
+                                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => deleteRecord('blog_posts', post.id)}
+                                  className="px-3 py-1.5 bg-white hover:bg-red-50 text-red-600 text-sm rounded-md border border-red-300 transition-colors"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
