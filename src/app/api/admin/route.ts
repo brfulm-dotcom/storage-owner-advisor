@@ -236,6 +236,112 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
+  if (action === 'approve_submission') {
+    const { submissionId, rating, service_area, short_description, features, year_founded, headquarters, logo } = body;
+
+    // Get the submission
+    const { data: submission, error: subError } = await supabase
+      .from('submissions')
+      .select('*')
+      .eq('id', submissionId)
+      .single();
+
+    if (subError || !submission) {
+      return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
+    }
+
+    // Generate slug from company name
+    const slug = submission.company_name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+
+    // Check if vendor slug already exists
+    const { data: existingVendor } = await supabase
+      .from('vendors')
+      .select('id')
+      .eq('slug', slug)
+      .single();
+
+    if (existingVendor) {
+      return NextResponse.json({ error: `A vendor with slug "${slug}" already exists.` }, { status: 409 });
+    }
+
+    // Create the vendor record
+    const { error: vendorError } = await supabase
+      .from('vendors')
+      .insert({
+        slug,
+        name: submission.company_name,
+        category_slug: submission.category_slug,
+        short_description: short_description || submission.description.substring(0, 150),
+        full_description: submission.description,
+        website: submission.website,
+        phone: submission.phone || null,
+        email: submission.contact_email || null,
+        logo: logo || null,
+        features: features || [],
+        rating: rating || 0,
+        review_count: 0,
+        featured: false,
+        tier: 'free',
+        service_area: service_area || 'national',
+        year_founded: year_founded || null,
+        headquarters: headquarters || null,
+        verified: false,
+        active: true,
+      });
+
+    if (vendorError) {
+      console.error('Error creating vendor:', vendorError);
+      return NextResponse.json({ error: 'Failed to create vendor: ' + vendorError.message }, { status: 500 });
+    }
+
+    // Update submission status to approved
+    await supabase.from('submissions').update({ status: 'approved' }).eq('id', submissionId);
+
+    // Send approval notification email
+    try {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const vendorUrl = `https://www.storageowneradvisor.com/vendor/${slug}`;
+
+      await resend.emails.send({
+        from: 'StorageOwnerAdvisor <onboarding@resend.dev>',
+        to: submission.contact_email,
+        subject: `${submission.company_name} is now listed on StorageOwnerAdvisor!`,
+        html: `
+          <h2>Your Listing is Live!</h2>
+          <p>Hi there,</p>
+          <p>Great news — <strong>${submission.company_name}</strong> has been reviewed and approved for listing on StorageOwnerAdvisor.</p>
+          <p>Your vendor page is now live:</p>
+          <p><a href="${vendorUrl}" style="display:inline-block;background:#2563eb;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold;">View Your Listing</a></p>
+          <h3>What's Next?</h3>
+          <ul>
+            <li><strong>Claim your listing</strong> to unlock editing capabilities and keep your info up to date.</li>
+            <li><strong>Upgrade to Premium or Featured</strong> to get more visibility and stand out from competitors.</li>
+          </ul>
+          <p>To claim your listing, visit your vendor page and click the "Claim This Listing" button.</p>
+          <p>If you have any questions, reply to this email or contact us at support@storageowneradvisor.com.</p>
+          <p>Thanks,<br/>StorageOwnerAdvisor Team</p>
+        `,
+      });
+    } catch (emailErr) {
+      console.error('Approval email failed (vendor was still created):', emailErr);
+    }
+
+    // Revalidate the category page so the new vendor shows up
+    try {
+      revalidatePath(`/category/${submission.category_slug}`, 'page');
+      revalidatePath('/', 'layout');
+    } catch {
+      // Non-critical
+    }
+
+    return NextResponse.json({ success: true, slug });
+  }
+
   if (action === 'create_blog_post') {
     const { title, slug, excerpt, content, category_slug, author, meta_description, status: postStatus, published_at } = body;
 

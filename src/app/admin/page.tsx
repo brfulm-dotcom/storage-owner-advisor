@@ -106,6 +106,22 @@ export default function AdminPage() {
   });
   const [showPreview, setShowPreview] = useState(false);
 
+  // ---- Submission Approval Modal State ----
+  const [approvalModal, setApprovalModal] = useState<{
+    open: boolean;
+    submission: Submission | null;
+  }>({ open: false, submission: null });
+  const [approvalForm, setApprovalForm] = useState({
+    rating: '',
+    service_area: 'national' as 'local' | 'national',
+    short_description: '',
+    features: '',
+    year_founded: '',
+    headquarters: '',
+    logo: '',
+  });
+  const [approving, setApproving] = useState(false);
+
   // ---- Stored password for API calls ----
   const [storedPassword, setStoredPassword] = useState('');
 
@@ -258,6 +274,64 @@ export default function AdminPage() {
     if (!confirm('Are you sure you want to delete this record?')) return;
     await apiCall('DELETE', undefined, { table, id });
     fetchData();
+  };
+
+  // ---- Submission approval helpers ----
+  const openApprovalModal = (sub: Submission) => {
+    setApprovalModal({ open: true, submission: sub });
+    setApprovalForm({
+      rating: '',
+      service_area: 'national',
+      short_description: sub.description.length > 120 ? sub.description.substring(0, 120) + '...' : sub.description,
+      features: '',
+      year_founded: '',
+      headquarters: '',
+      logo: '',
+    });
+  };
+
+  const approveSubmission = async () => {
+    if (!approvalModal.submission) return;
+    const sub = approvalModal.submission;
+
+    if (!approvalForm.rating) {
+      alert('Please enter a rating (0-5) before approving.');
+      return;
+    }
+
+    const ratingNum = parseFloat(approvalForm.rating);
+    if (isNaN(ratingNum) || ratingNum < 0 || ratingNum > 5) {
+      alert('Rating must be between 0 and 5.');
+      return;
+    }
+
+    if (!confirm(`Create vendor "${sub.company_name}" and send approval email to ${sub.contact_email}?`)) return;
+
+    setApproving(true);
+    try {
+      const result = await apiCall('POST', undefined, {
+        action: 'approve_submission',
+        submissionId: sub.id,
+        rating: ratingNum,
+        service_area: approvalForm.service_area,
+        short_description: approvalForm.short_description,
+        features: approvalForm.features.split(',').map((f: string) => f.trim()).filter(Boolean),
+        year_founded: approvalForm.year_founded ? parseInt(approvalForm.year_founded) : null,
+        headquarters: approvalForm.headquarters || null,
+        logo: approvalForm.logo || null,
+      });
+
+      if (result.success) {
+        alert(`Vendor "${sub.company_name}" created and approval email sent!`);
+        setApprovalModal({ open: false, submission: null });
+        fetchData();
+      } else {
+        alert('Error: ' + (result.error || 'Unknown error'));
+      }
+    } catch {
+      alert('Failed to approve submission.');
+    }
+    setApproving(false);
   };
 
   // ---- Blog post helpers ----
@@ -657,7 +731,7 @@ export default function AdminPage() {
                           <div className="flex flex-wrap gap-2 sm:flex-col">
                             {sub.status !== 'approved' && (
                               <button
-                                onClick={() => updateStatus('submissions', sub.id, 'approved')}
+                                onClick={() => openApprovalModal(sub)}
                                 className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors"
                               >
                                 Approve
@@ -1238,6 +1312,144 @@ export default function AdminPage() {
           </>
         )}
       </div>
+
+      {/* ======== SUBMISSION APPROVAL MODAL ======== */}
+      {approvalModal.open && approvalModal.submission && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-1">
+                Approve Vendor Submission
+              </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Review and fill in details for <strong>{approvalModal.submission.company_name}</strong>. This will create the vendor listing and email the submitter.
+              </p>
+
+              <div className="space-y-4">
+                {/* Rating */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Rating (0-5) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={approvalForm.rating}
+                    onChange={(e) => setApprovalForm({ ...approvalForm, rating: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g. 4.2 (based on your research)"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Set based on your research (Google reviews, BBB, Trustpilot, etc.)</p>
+                </div>
+
+                {/* Service Area */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Service Area</label>
+                  <select
+                    value={approvalForm.service_area}
+                    onChange={(e) => setApprovalForm({ ...approvalForm, service_area: e.target.value as 'local' | 'national' })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="national">National</option>
+                    <option value="local">Local</option>
+                  </select>
+                </div>
+
+                {/* Short Description */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
+                  <textarea
+                    rows={2}
+                    value={approvalForm.short_description}
+                    onChange={(e) => setApprovalForm({ ...approvalForm, short_description: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Brief tagline for the vendor card"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">{approvalForm.short_description.length}/150 chars</p>
+                </div>
+
+                {/* Features */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Key Features</label>
+                  <input
+                    type="text"
+                    value={approvalForm.features}
+                    onChange={(e) => setApprovalForm({ ...approvalForm, features: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Feature 1, Feature 2, Feature 3 (comma-separated)"
+                  />
+                </div>
+
+                {/* Year Founded */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Year Founded</label>
+                  <input
+                    type="text"
+                    value={approvalForm.year_founded}
+                    onChange={(e) => setApprovalForm({ ...approvalForm, year_founded: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g. 2015"
+                  />
+                </div>
+
+                {/* Headquarters */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Headquarters</label>
+                  <input
+                    type="text"
+                    value={approvalForm.headquarters}
+                    onChange={(e) => setApprovalForm({ ...approvalForm, headquarters: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g. Austin, TX"
+                  />
+                </div>
+
+                {/* Logo URL */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
+                  <input
+                    type="text"
+                    value={approvalForm.logo}
+                    onChange={(e) => setApprovalForm({ ...approvalForm, logo: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="https://... (optional)"
+                  />
+                </div>
+              </div>
+
+              {/* Info from submission (read-only) */}
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">From Submission</h4>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p><span className="font-medium">Category:</span> {approvalModal.submission.category_slug}</p>
+                  <p><span className="font-medium">Website:</span> {approvalModal.submission.website}</p>
+                  <p><span className="font-medium">Email:</span> {approvalModal.submission.contact_email}</p>
+                  <p><span className="font-medium">Phone:</span> {approvalModal.submission.phone}</p>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={approveSubmission}
+                  disabled={approving}
+                  className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium rounded-lg transition-colors"
+                >
+                  {approving ? 'Creating Vendor...' : 'Create Vendor & Approve'}
+                </button>
+                <button
+                  onClick={() => setApprovalModal({ open: false, submission: null })}
+                  className="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
