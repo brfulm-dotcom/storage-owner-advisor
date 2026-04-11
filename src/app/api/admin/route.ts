@@ -236,6 +236,39 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
+  if (action === 'check_vendor_exists') {
+    const { company_name } = body;
+    const slug = company_name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+
+    // Check by slug match or name match (case-insensitive)
+    const { data: bySlug } = await supabase
+      .from('vendors')
+      .select('id, slug, name, category_slug, active, rating')
+      .eq('slug', slug)
+      .single();
+
+    if (bySlug) {
+      return NextResponse.json({ exists: true, vendor: bySlug });
+    }
+
+    const { data: byName } = await supabase
+      .from('vendors')
+      .select('id, slug, name, category_slug, active, rating')
+      .ilike('name', company_name)
+      .single();
+
+    if (byName) {
+      return NextResponse.json({ exists: true, vendor: byName });
+    }
+
+    return NextResponse.json({ exists: false });
+  }
+
   if (action === 'approve_submission') {
     const { submissionId, rating, service_area, short_description, features, year_founded, headquarters, logo } = body;
 

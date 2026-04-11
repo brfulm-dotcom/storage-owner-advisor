@@ -62,6 +62,8 @@ interface VendorReviewsProps {
   vendorName: string;
   currentRating: number;
   reviewCount: number;
+  siteRating?: number;
+  siteReviewCount?: number;
 }
 
 export default async function VendorReviews({
@@ -69,6 +71,8 @@ export default async function VendorReviews({
   vendorName,
   currentRating,
   reviewCount,
+  siteRating,
+  siteReviewCount,
 }: VendorReviewsProps) {
   const reviews = await getApprovedReviews(vendorSlug);
 
@@ -93,15 +97,15 @@ export default async function VendorReviews({
       {/* Rating summary */}
       {reviews.length > 0 ? (
         <div className="flex gap-6 mb-6 pb-6 border-b border-gray-100">
-          {/* Big average */}
+          {/* Big average — show site rating from user reviews */}
           <div className="flex flex-col items-center justify-center min-w-[80px]">
-            <span className="text-4xl font-bold text-gray-900">{currentRating.toFixed(1)}</span>
+            <span className="text-4xl font-bold text-gray-900">{(siteRating ?? currentRating).toFixed(1)}</span>
             <div className="flex gap-0.5 my-1">
               {[1,2,3,4,5].map(s => (
-                <span key={s} className={`text-sm ${s <= Math.round(currentRating) ? 'text-yellow-400' : 'text-gray-200'}`}>★</span>
+                <span key={s} className={`text-sm ${s <= Math.round(siteRating ?? currentRating) ? 'text-yellow-400' : 'text-gray-200'}`}>★</span>
               ))}
             </div>
-            <span className="text-xs text-gray-500">{reviewCount} reviews</span>
+            <span className="text-xs text-gray-500">{siteReviewCount ?? reviewCount} user reviews</span>
           </div>
 
           {/* Bar breakdown */}

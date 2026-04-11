@@ -72,7 +72,20 @@ interface BlogPost {
   created_at: string;
 }
 
-type Tab = 'submissions' | 'claims' | 'contacts' | 'newsletter' | 'analytics' | 'blog';
+interface VendorReview {
+  id: number;
+  vendor_slug: string;
+  rating: number;
+  title: string | null;
+  review_text: string;
+  reviewer_name: string;
+  reviewer_title: string | null;
+  source: string;
+  approved: boolean;
+  created_at: string;
+}
+
+type Tab = 'submissions' | 'claims' | 'contacts' | 'newsletter' | 'analytics' | 'blog' | 'reviews';
 
 export default function AdminPage() {
   // ---- Auth State ----
@@ -91,6 +104,7 @@ export default function AdminPage() {
   const [clickData, setClickData] = useState<ClickData[]>([]);
   const [totalClicks, setTotalClicks] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [vendorReviews, setVendorReviews] = useState<VendorReview[]>([]);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [showPostForm, setShowPostForm] = useState(false);
@@ -196,6 +210,7 @@ export default function AdminPage() {
           contacts: 'contact_messages',
           newsletter: 'newsletter_subscribers',
           blog: 'blog_posts',
+          reviews: 'vendor_reviews',
         };
 
         const result = await apiCall('GET', { table: tableMap[activeTab] });
@@ -216,6 +231,9 @@ export default function AdminPage() {
               break;
             case 'blog':
               setBlogPosts(result.data);
+              break;
+            case 'reviews':
+              setVendorReviews(result.data);
               break;
           }
         }
@@ -277,7 +295,31 @@ export default function AdminPage() {
   };
 
   // ---- Submission approval helpers ----
-  const openApprovalModal = (sub: Submission) => {
+  const openApprovalModal = async (sub: Submission) => {
+    // Check if vendor already exists
+    const result = await apiCall('POST', undefined, {
+      action: 'check_vendor_exists',
+      company_name: sub.company_name,
+    });
+
+    if (result.exists) {
+      const vendor = result.vendor;
+      const action = confirm(
+        `⚠️ "${sub.company_name}" already exists in the vendor database!\n\n` +
+        `Slug: ${vendor.slug}\n` +
+        `Category: ${vendor.category_slug}\n` +
+        `Active: ${vendor.active ? 'Yes' : 'No'}\n` +
+        `Rating: ${vendor.rating}/5\n\n` +
+        `Click OK to mark this submission as approved (no new vendor created).\n` +
+        `Click Cancel to go back.`
+      );
+      if (action) {
+        await apiCall('PATCH', undefined, { table: 'submissions', id: sub.id, status: 'approved' });
+        fetchData();
+      }
+      return;
+    }
+
     setApprovalModal({ open: true, submission: sub });
     setApprovalForm({
       rating: '',
@@ -587,6 +629,21 @@ export default function AdminPage() {
               {blogPosts.length > 0 && (
                 <span className="ml-2 bg-indigo-100 text-indigo-800 text-xs font-semibold px-2 py-0.5 rounded-full">
                   {blogPosts.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('reviews')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'reviews'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Reviews
+              {vendorReviews.filter(r => !r.approved).length > 0 && (
+                <span className="ml-2 bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {vendorReviews.filter(r => !r.approved).length} pending
                 </span>
               )}
             </button>
@@ -1305,6 +1362,126 @@ export default function AdminPage() {
                         ))}
                       </div>
                     )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ======== REVIEWS TAB ======== */}
+            {activeTab === 'reviews' && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Vendor Reviews ({vendorReviews.length})
+                    {vendorReviews.filter(r => !r.approved).length > 0 && (
+                      <span className="ml-2 text-sm font-normal text-orange-600">
+                        — {vendorReviews.filter(r => !r.approved).length} pending moderation
+                      </span>
+                    )}
+                  </h2>
+                  <button
+                    onClick={fetchData}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Refresh
+                  </button>
+                </div>
+
+                {vendorReviews.length === 0 ? (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                    <p className="text-gray-500">No reviews yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Show pending reviews first, then approved */}
+                    {[...vendorReviews]
+                      .sort((a, b) => {
+                        if (a.approved !== b.approved) return a.approved ? 1 : -1;
+                        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                      })
+                      .map((review) => (
+                      <div
+                        key={review.id}
+                        className={`bg-white rounded-lg shadow-sm border p-6 ${
+                          !review.approved ? 'border-orange-300 bg-orange-50/30' : 'border-gray-200'
+                        }`}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="flex gap-0.5">
+                                {[1,2,3,4,5].map(s => (
+                                  <span key={s} className={`text-sm ${s <= review.rating ? 'text-yellow-400' : 'text-gray-200'}`}>★</span>
+                                ))}
+                              </div>
+                              <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                                review.approved
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-orange-100 text-orange-800'
+                              }`}>
+                                {review.approved ? 'Approved' : 'Pending'}
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                {review.source === 'site' ? 'User Review' : review.source === 'google' ? 'Google' : 'Imported'}
+                              </span>
+                            </div>
+
+                            <p className="text-sm font-medium text-gray-900 mb-1">
+                              Vendor: <a href={`/vendor/${review.vendor_slug}`} target="_blank" className="text-blue-600 hover:underline">{review.vendor_slug}</a>
+                            </p>
+
+                            {review.title && (
+                              <p className="text-sm font-semibold text-gray-900 mb-1">{review.title}</p>
+                            )}
+
+                            <p className="text-sm text-gray-600 mb-2">{review.review_text}</p>
+
+                            <div className="flex items-center gap-2 text-xs text-gray-400">
+                              <span className="font-medium text-gray-600">{review.reviewer_name}</span>
+                              {review.reviewer_title && (
+                                <>
+                                  <span>·</span>
+                                  <span>{review.reviewer_title}</span>
+                                </>
+                              )}
+                              <span>·</span>
+                              <span>{formatDate(review.created_at)}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 sm:flex-col">
+                            {!review.approved && (
+                              <button
+                                onClick={async () => {
+                                  await apiCall('PATCH', undefined, { table: 'vendor_reviews', id: review.id, approved: true });
+                                  fetchData();
+                                }}
+                                className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded-md transition-colors"
+                              >
+                                Approve
+                              </button>
+                            )}
+                            {review.approved && (
+                              <button
+                                onClick={async () => {
+                                  await apiCall('PATCH', undefined, { table: 'vendor_reviews', id: review.id, approved: false });
+                                  fetchData();
+                                }}
+                                className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-md transition-colors"
+                              >
+                                Unapprove
+                              </button>
+                            )}
+                            <button
+                              onClick={() => deleteRecord('vendor_reviews', review.id)}
+                              className="px-3 py-1.5 bg-white hover:bg-red-50 text-red-600 text-sm rounded-md border border-red-300 transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

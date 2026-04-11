@@ -81,6 +81,8 @@ export interface Vendor {
   verified?: boolean;
   badges?: string[] | null;
   active?: boolean;
+  site_rating?: number;
+  site_review_count?: number;
   created_at?: string;
   updated_at?: string;
 }

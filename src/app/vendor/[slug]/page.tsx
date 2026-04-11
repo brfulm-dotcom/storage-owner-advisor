@@ -217,9 +217,18 @@ export default async function VendorPage(props: VendorPageProps) {
                   </div>
                 )}
 
-                {/* Rating */}
-                <div className="flex items-center gap-4 mb-4 pb-4 border-b border-gray-200">
-                  <StarRating rating={vendor.rating} reviewCount={vendor.review_count} />
+                {/* Ratings */}
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4 pb-4 border-b border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Editor</span>
+                    <StarRating rating={vendor.rating} reviewCount={vendor.review_count} />
+                  </div>
+                  {(vendor.site_review_count ?? 0) > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Users</span>
+                      <StarRating rating={vendor.site_rating ?? 0} reviewCount={vendor.site_review_count ?? 0} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Description */}
@@ -350,6 +359,8 @@ export default async function VendorPage(props: VendorPageProps) {
                 vendorName={vendor.name}
                 currentRating={vendor.rating}
                 reviewCount={vendor.review_count}
+                siteRating={vendor.site_rating}
+                siteReviewCount={vendor.site_review_count}
               />
 
               {/* Write a Review */}
