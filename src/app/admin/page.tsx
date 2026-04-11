@@ -597,6 +597,61 @@ export default function AdminPage() {
                               <span className="font-medium">Description:</span> {sub.description}
                             </p>
                             <p className="mt-2 text-xs text-gray-400">{formatDate(sub.submitted_at)}</p>
+
+                            {/* Research Links */}
+                            <div className="mt-3 pt-3 border-t border-gray-100">
+                              <p className="text-xs font-medium text-gray-500 mb-2">Research this vendor:</p>
+                              <div className="flex flex-wrap gap-2">
+                                <a
+                                  href={`https://www.google.com/search?q=${encodeURIComponent('"' + sub.company_name + '" reviews')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs rounded-md transition-colors"
+                                >
+                                  Reviews
+                                </a>
+                                <a
+                                  href={`https://www.google.com/search?q=${encodeURIComponent('"' + sub.company_name + '" BBB')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs rounded-md transition-colors"
+                                >
+                                  BBB
+                                </a>
+                                <a
+                                  href={`https://www.google.com/search?q=${encodeURIComponent('"' + sub.company_name + '" complaints')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs rounded-md transition-colors"
+                                >
+                                  Complaints
+                                </a>
+                                <a
+                                  href={`https://www.trustpilot.com/search?query=${encodeURIComponent(sub.company_name)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs rounded-md transition-colors"
+                                >
+                                  Trustpilot
+                                </a>
+                                <a
+                                  href={`https://www.google.com/search?q=${encodeURIComponent('"' + sub.company_name + '" self storage')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs rounded-md transition-colors"
+                                >
+                                  Industry
+                                </a>
+                                <a
+                                  href={sub.website.startsWith('http') ? sub.website : `https://${sub.website}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs rounded-md transition-colors"
+                                >
+                                  Visit Website
+                                </a>
+                              </div>
+                            </div>
                           </div>
 
                           <div className="flex flex-wrap gap-2 sm:flex-col">
