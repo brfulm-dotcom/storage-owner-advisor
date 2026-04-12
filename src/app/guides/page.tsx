@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: 'Guides - StorageOwnerAdvisor',
   description:
     'Comprehensive guides for storage facility owners on choosing vendors, comparing solutions, and industry best practices. Coming soon.',
+  alternates: {
+    canonical: '/guides',
+  },
 };
 
 export default function GuidesPage() {

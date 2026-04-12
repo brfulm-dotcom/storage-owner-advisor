@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: 'Terms of Service - StorageOwnerAdvisor',
   description:
     'Read the terms and conditions for using the StorageOwnerAdvisor vendor directory.',
+  alternates: {
+    canonical: '/terms',
+  },
 };
 
 export default function TermsPage() {

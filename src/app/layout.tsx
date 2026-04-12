@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.storageowneradvisor.com'),
   title: 'StorageOwnerAdvisor - Find Trusted Vendors for Your Storage Facility',
   description:
     'Discover vetted, reliable vendors for storage facilities. Find solutions for security, climate control, property management, and more. Compare top-rated service providers.',
@@ -18,6 +19,9 @@ export const metadata: Metadata = {
     'facility management',
     'storage solutions',
   ],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'StorageOwnerAdvisor - Find Trusted Vendors',
     description: 'Discover vetted vendors trusted by storage facility owners.',

@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: 'About StorageOwnerAdvisor',
   description:
     'Learn about our mission to connect storage facility owners with vetted, trusted vendors and service providers.',
+  alternates: {
+    canonical: '/about',
+  },
 };
 
 export default function AboutPage() {

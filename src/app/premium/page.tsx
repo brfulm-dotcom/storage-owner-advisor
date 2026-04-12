@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: 'Premium Listings - StorageOwnerAdvisor',
   description:
     'Boost your visibility in the self-storage industry with a premium vendor listing on StorageOwnerAdvisor.',
+  alternates: {
+    canonical: '/premium',
+  },
 };
 
 const tiers = [

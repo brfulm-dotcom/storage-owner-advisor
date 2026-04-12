@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: 'Privacy Policy - StorageOwnerAdvisor',
   description:
     'Learn how StorageOwnerAdvisor collects, uses, and protects your personal information.',
+  alternates: {
+    canonical: '/privacy',
+  },
 };
 
 export default function PrivacyPage() {
