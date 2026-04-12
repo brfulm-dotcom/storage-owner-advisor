@@ -19,6 +19,12 @@ export default function SubmitPage() {
     contactEmail: '',
     phone: '',
     description: '',
+    serviceArea: '' as '' | 'local' | 'national',
+    city: '',
+    state: '',
+    yearFounded: '',
+    logoUrl: '',
+    features: '',
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,6 +76,12 @@ export default function SubmitPage() {
         contact_email: formData.contactEmail,
         phone: formData.phone,
         description: formData.description,
+        service_area: formData.serviceArea || null,
+        city: formData.city.trim() || null,
+        state: formData.state.trim() || null,
+        year_founded: formData.yearFounded ? parseInt(formData.yearFounded) : null,
+        logo_url: formData.logoUrl.trim() || null,
+        features: formData.features.trim() || null,
       });
 
     setIsSubmitting(false);
@@ -93,6 +105,12 @@ export default function SubmitPage() {
           contactEmail: formData.contactEmail,
           phone: formData.phone,
           description: formData.description,
+          serviceArea: formData.serviceArea,
+          city: formData.city,
+          state: formData.state,
+          yearFounded: formData.yearFounded,
+          logoUrl: formData.logoUrl,
+          features: formData.features,
         },
       }),
     }).catch((err) => console.error('Notification error:', err));
@@ -107,6 +125,12 @@ export default function SubmitPage() {
         contactEmail: '',
         phone: '',
         description: '',
+        serviceArea: '',
+        city: '',
+        state: '',
+        yearFounded: '',
+        logoUrl: '',
+        features: '',
       });
     }, 5000);
   };
@@ -198,6 +222,79 @@ export default function SubmitPage() {
                     <textarea id="description" name="description" value={formData.description} onChange={handleChange} required rows={6}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Tell us about your service and why storage facility owners should consider your solution..." />
+                  </div>
+
+                  {/* Additional Details Section */}
+                  <div className="border-t border-gray-200 pt-6 mt-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">Additional Details</h3>
+                    <p className="text-sm text-gray-500 mb-4">Optional but helps us create a better listing for you.</p>
+
+                    <div className="space-y-6">
+                      {/* Service Area */}
+                      <div>
+                        <label htmlFor="serviceArea" className="block text-sm font-semibold text-gray-900 mb-2">
+                          Service Area
+                        </label>
+                        <select id="serviceArea" name="serviceArea" value={formData.serviceArea} onChange={handleChange}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                          <option value="">Select service area</option>
+                          <option value="national">National — we serve customers across the country</option>
+                          <option value="local">Local/Regional — we serve a specific area</option>
+                        </select>
+                      </div>
+
+                      {/* City & State */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label htmlFor="city" className="block text-sm font-semibold text-gray-900 mb-2">
+                            Headquarters City
+                          </label>
+                          <input type="text" id="city" name="city" value={formData.city} onChange={handleChange}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g. Austin" />
+                        </div>
+                        <div>
+                          <label htmlFor="state" className="block text-sm font-semibold text-gray-900 mb-2">
+                            State
+                          </label>
+                          <input type="text" id="state" name="state" value={formData.state} onChange={handleChange}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g. TX" maxLength={2} />
+                        </div>
+                      </div>
+
+                      {/* Year Founded */}
+                      <div>
+                        <label htmlFor="yearFounded" className="block text-sm font-semibold text-gray-900 mb-2">
+                          Year Founded
+                        </label>
+                        <input type="number" id="yearFounded" name="yearFounded" value={formData.yearFounded} onChange={handleChange}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="e.g. 2015" min="1900" max={new Date().getFullYear()} />
+                      </div>
+
+                      {/* Logo URL */}
+                      <div>
+                        <label htmlFor="logoUrl" className="block text-sm font-semibold text-gray-900 mb-2">
+                          Logo URL
+                        </label>
+                        <input type="url" id="logoUrl" name="logoUrl" value={formData.logoUrl} onChange={handleChange}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="https://yoursite.com/logo.png" />
+                        <p className="text-xs text-gray-400 mt-1">Link to your company logo (PNG or JPG, at least 200x200px recommended)</p>
+                      </div>
+
+                      {/* Key Features */}
+                      <div>
+                        <label htmlFor="features" className="block text-sm font-semibold text-gray-900 mb-2">
+                          Key Features / Services
+                        </label>
+                        <input type="text" id="features" name="features" value={formData.features} onChange={handleChange}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="e.g. 24/7 Support, Mobile App, Revenue Sharing, Free Setup" />
+                        <p className="text-xs text-gray-400 mt-1">Comma-separated list of your top features</p>
+                      </div>
+                    </div>
                   </div>
 
                   {error && (

@@ -302,7 +302,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `A vendor with slug "${slug}" already exists.` }, { status: 409 });
     }
 
-    // Create the vendor record
+    // Create the vendor record — use approval form values, fall back to submission data
+    const hq = headquarters || [submission.city, submission.state].filter(Boolean).join(', ') || null;
     const { error: vendorError } = await supabase
       .from('vendors')
       .insert({
@@ -314,15 +315,21 @@ export async function POST(request: NextRequest) {
         website: submission.website,
         phone: submission.phone || null,
         email: submission.contact_email || null,
-        logo: logo || null,
-        features: features || [],
+        logo: logo || submission.logo_url || null,
+        features: features && features.length > 0
+          ? features
+          : submission.features
+            ? submission.features.split(',').map((f: string) => f.trim()).filter(Boolean)
+            : [],
         rating: rating || 0,
         review_count: 0,
         featured: false,
         tier: 'free',
-        service_area: service_area || 'national',
-        year_founded: year_founded || null,
-        headquarters: headquarters || null,
+        service_area: service_area || submission.service_area || 'national',
+        year_founded: year_founded || submission.year_founded || null,
+        headquarters: hq,
+        city: submission.city || null,
+        state: submission.state || null,
         verified: false,
         active: true,
       });

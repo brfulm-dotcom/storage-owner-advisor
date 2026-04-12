@@ -17,6 +17,12 @@ interface Submission {
   contact_email: string;
   phone: string;
   description: string;
+  service_area: 'local' | 'national' | null;
+  city: string | null;
+  state: string | null;
+  year_founded: number | null;
+  logo_url: string | null;
+  features: string | null;
   status: 'pending' | 'approved' | 'rejected';
   submitted_at: string;
 }
@@ -323,12 +329,12 @@ export default function AdminPage() {
     setApprovalModal({ open: true, submission: sub });
     setApprovalForm({
       rating: '',
-      service_area: 'national',
+      service_area: sub.service_area || 'national',
       short_description: sub.description.length > 120 ? sub.description.substring(0, 120) + '...' : sub.description,
-      features: '',
-      year_founded: '',
-      headquarters: '',
-      logo: '',
+      features: sub.features || '',
+      year_founded: sub.year_founded ? String(sub.year_founded) : '',
+      headquarters: [sub.city, sub.state].filter(Boolean).join(', ') || '',
+      logo: sub.logo_url || '',
     });
   };
 
@@ -723,10 +729,29 @@ export default function AdminPage() {
                                 <a href={`mailto:${sub.contact_email}`} className="text-blue-600 hover:underline">{sub.contact_email}</a>
                               </div>
                               <div><span className="font-medium">Phone:</span> {sub.phone}</div>
+                              {sub.service_area && (
+                                <div><span className="font-medium">Service Area:</span> {sub.service_area === 'national' ? 'National' : 'Local/Regional'}</div>
+                              )}
+                              {(sub.city || sub.state) && (
+                                <div><span className="font-medium">Location:</span> {[sub.city, sub.state].filter(Boolean).join(', ')}</div>
+                              )}
+                              {sub.year_founded && (
+                                <div><span className="font-medium">Founded:</span> {sub.year_founded}</div>
+                              )}
+                              {sub.logo_url && (
+                                <div><span className="font-medium">Logo:</span>{' '}
+                                  <a href={sub.logo_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View</a>
+                                </div>
+                              )}
                             </div>
                             <p className="mt-2 text-sm text-gray-600">
                               <span className="font-medium">Description:</span> {sub.description}
                             </p>
+                            {sub.features && (
+                              <p className="mt-1 text-sm text-gray-600">
+                                <span className="font-medium">Features:</span> {sub.features}
+                              </p>
+                            )}
                             <p className="mt-2 text-xs text-gray-400">{formatDate(sub.submitted_at)}</p>
 
                             {/* Research Links */}
