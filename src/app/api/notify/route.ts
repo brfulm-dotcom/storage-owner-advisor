@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 import { NextRequest, NextResponse } from 'next/server';
 
 const ADMIN_EMAIL = 'brfulm@gmail.com';
-const FROM_EMAIL = 'onboarding@resend.dev';
+const FROM_EMAIL = 'noreply@storageowneradvisor.com';
 
 export async function POST(request: NextRequest) {
   try {

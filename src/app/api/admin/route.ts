@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
     const editUrl = `https://storageowneradvisor.com/vendor/edit/${token}`;
 
     await resend.emails.send({
-      from: 'StorageOwnerAdvisor <onboarding@resend.dev>',
+      from: 'StorageOwnerAdvisor <noreply@storageowneradvisor.com>',
       to: claim.contact_email,
       subject: `Your claim for ${vendor.name} has been approved!`,
       html: `
@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
     // Send rejection email
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
-      from: 'StorageOwnerAdvisor <onboarding@resend.dev>',
+      from: 'StorageOwnerAdvisor <noreply@storageowneradvisor.com>',
       to: claim.contact_email,
       subject: `Update on your claim for ${vendor?.name || claim.vendor_slug}`,
       html: `
@@ -348,7 +348,7 @@ export async function POST(request: NextRequest) {
       const vendorUrl = `https://www.storageowneradvisor.com/vendor/${slug}`;
 
       await resend.emails.send({
-        from: 'StorageOwnerAdvisor <onboarding@resend.dev>',
+        from: 'StorageOwnerAdvisor <noreply@storageowneradvisor.com>',
         to: submission.contact_email,
         subject: `${submission.company_name} is now listed on StorageOwnerAdvisor!`,
         html: `
