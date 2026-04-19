@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const table = searchParams.get('table');
 
-  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers', 'vendor_clicks', 'vendor_reviews', 'blog_posts'].includes(table)) {
+  if (!table || !['submissions', 'claims', 'contact_messages', 'newsletter_subscribers', 'vendor_clicks', 'vendor_reviews', 'blog_posts', 'vendors'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
   }
 
@@ -45,11 +45,13 @@ export async function GET(request: NextRequest) {
     table === 'vendor_clicks' ? 'clicked_at' :
     table === 'vendor_reviews' ? 'created_at' :
     table === 'blog_posts' ? 'created_at' :
+    table === 'vendors' ? 'name' :
     'submitted_at';
+  const ascending = table === 'vendors';
   const { data, error } = await supabase
     .from(table)
     .select('*')
-    .order(orderColumn, { ascending: false });
+    .order(orderColumn, { ascending });
 
   if (error) {
     console.error(`Error fetching ${table}:`, error);
@@ -66,13 +68,27 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { table, id, status, approved } = body;
+  const { table, id, status, approved, active } = body;
 
-  if (!table || !['submissions', 'claims', 'vendor_reviews', 'blog_posts'].includes(table)) {
+  if (!table || !['submissions', 'claims', 'vendor_reviews', 'blog_posts', 'vendors'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
   }
 
   const supabase = getAdminClient();
+
+  // vendors — only the active flag can be toggled via this endpoint
+  if (table === 'vendors') {
+    const { error } = await supabase
+      .from('vendors')
+      .update({ active: active === true })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating vendor active flag:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ success: true });
+  }
 
   // blog_posts updates all fields passed in the body
   if (table === 'blog_posts') {

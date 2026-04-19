@@ -91,7 +91,19 @@ interface VendorReview {
   created_at: string;
 }
 
-type Tab = 'submissions' | 'claims' | 'contacts' | 'newsletter' | 'analytics' | 'blog' | 'reviews';
+interface AdminVendor {
+  id: number;
+  name: string;
+  slug: string;
+  category_slug: string;
+  website: string;
+  city: string | null;
+  state: string | null;
+  service_area: 'local' | 'national';
+  active: boolean;
+}
+
+type Tab = 'submissions' | 'claims' | 'contacts' | 'newsletter' | 'analytics' | 'blog' | 'reviews' | 'vendors';
 
 export default function AdminPage() {
   // ---- Auth State ----
@@ -111,6 +123,16 @@ export default function AdminPage() {
   const [totalClicks, setTotalClicks] = useState(0);
   const [loading, setLoading] = useState(false);
   const [vendorReviews, setVendorReviews] = useState<VendorReview[]>([]);
+  const [vendors, setVendors] = useState<AdminVendor[]>([]);
+  const [vendorFilters, setVendorFilters] = useState({
+    query: '',
+    category: '',
+    state: '',
+    city: '',
+    serviceArea: '',
+    showInactive: true,
+  });
+  const [togglingVendorId, setTogglingVendorId] = useState<number | null>(null);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [showPostForm, setShowPostForm] = useState(false);
@@ -217,6 +239,7 @@ export default function AdminPage() {
           newsletter: 'newsletter_subscribers',
           blog: 'blog_posts',
           reviews: 'vendor_reviews',
+          vendors: 'vendors',
         };
 
         const result = await apiCall('GET', { table: tableMap[activeTab] });
@@ -241,6 +264,9 @@ export default function AdminPage() {
             case 'reviews':
               setVendorReviews(result.data);
               break;
+            case 'vendors':
+              setVendors(result.data);
+              break;
           }
         }
       }
@@ -259,6 +285,31 @@ export default function AdminPage() {
   const updateStatus = async (table: string, id: number, status: string) => {
     await apiCall('PATCH', undefined, { table, id, status });
     fetchData();
+  };
+
+  // ---- Toggle vendor active flag ----
+  const toggleVendorActive = async (vendor: AdminVendor) => {
+    const next = !vendor.active;
+    const verb = next ? 'reactivate' : 'deactivate';
+    if (!confirm(`${verb.charAt(0).toUpperCase() + verb.slice(1)} "${vendor.name}"?`)) return;
+    setTogglingVendorId(vendor.id);
+    try {
+      const result = await apiCall('PATCH', undefined, {
+        table: 'vendors',
+        id: vendor.id,
+        active: next,
+      });
+      if (result.success) {
+        // Update in place without refetching everything
+        setVendors(prev => prev.map(v => v.id === vendor.id ? { ...v, active: next } : v));
+      } else {
+        alert('Error: ' + (result.error || 'Unknown error'));
+      }
+    } catch {
+      alert('Failed to update vendor.');
+    } finally {
+      setTogglingVendorId(null);
+    }
   };
 
   // ---- Approve/Reject claims with email ----
@@ -650,6 +701,21 @@ export default function AdminPage() {
               {vendorReviews.filter(r => !r.approved).length > 0 && (
                 <span className="ml-2 bg-orange-100 text-orange-800 text-xs font-semibold px-2 py-0.5 rounded-full">
                   {vendorReviews.filter(r => !r.approved).length} pending
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('vendors')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'vendors'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Vendors
+              {vendors.length > 0 && (
+                <span className="ml-2 bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                  {vendors.length}
                 </span>
               )}
             </button>
@@ -1511,6 +1577,212 @@ export default function AdminPage() {
                 )}
               </div>
             )}
+
+            {/* ======== VENDORS TAB ======== */}
+            {activeTab === 'vendors' && (() => {
+              // Derive dropdown options from the loaded vendors
+              const categoryOptions = Array.from(new Set(vendors.map(v => v.category_slug).filter(Boolean))).sort();
+              const stateOptions = Array.from(new Set(vendors.map(v => v.state || '').filter(Boolean))).sort();
+              const cityOptions = vendorFilters.state
+                ? Array.from(new Set(vendors.filter(v => v.state === vendorFilters.state).map(v => v.city || '').filter(Boolean))).sort()
+                : [];
+
+              const q = vendorFilters.query.trim().toLowerCase();
+              const filtered = vendors.filter(v => {
+                if (!vendorFilters.showInactive && !v.active) return false;
+                if (vendorFilters.category && v.category_slug !== vendorFilters.category) return false;
+                if (vendorFilters.state && v.state !== vendorFilters.state) return false;
+                if (vendorFilters.city && v.city !== vendorFilters.city) return false;
+                if (vendorFilters.serviceArea && v.service_area !== vendorFilters.serviceArea) return false;
+                if (q && !v.name.toLowerCase().includes(q)) return false;
+                return true;
+              });
+
+              const activeCount = vendors.filter(v => v.active).length;
+              const inactiveCount = vendors.length - activeCount;
+
+              return (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Vendors ({vendors.length})
+                      <span className="ml-2 text-sm font-normal text-gray-500">
+                        — {activeCount} active, {inactiveCount} inactive
+                      </span>
+                    </h2>
+                    <button
+                      onClick={fetchData}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Refresh
+                    </button>
+                  </div>
+
+                  {/* Filter bar */}
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
+                      <div className="lg:col-span-2">
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Search name</label>
+                        <input
+                          type="text"
+                          value={vendorFilters.query}
+                          onChange={e => setVendorFilters({ ...vendorFilters, query: e.target.value })}
+                          placeholder="Vendor name..."
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Category</label>
+                        <select
+                          value={vendorFilters.category}
+                          onChange={e => setVendorFilters({ ...vendorFilters, category: e.target.value })}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">All</option>
+                          {categoryOptions.map(c => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">State</label>
+                        <select
+                          value={vendorFilters.state}
+                          onChange={e => setVendorFilters({ ...vendorFilters, state: e.target.value, city: '' })}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">All</option>
+                          {stateOptions.map(s => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">City</label>
+                        <select
+                          value={vendorFilters.city}
+                          onChange={e => setVendorFilters({ ...vendorFilters, city: e.target.value })}
+                          disabled={!vendorFilters.state}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
+                        >
+                          <option value="">{vendorFilters.state ? 'All' : 'Pick state first'}</option>
+                          {cityOptions.map(c => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Service Area</label>
+                        <select
+                          value={vendorFilters.serviceArea}
+                          onChange={e => setVendorFilters({ ...vendorFilters, serviceArea: e.target.value })}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">All</option>
+                          <option value="national">National</option>
+                          <option value="local">Local</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between">
+                      <label className="flex items-center gap-2 text-sm text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={vendorFilters.showInactive}
+                          onChange={e => setVendorFilters({ ...vendorFilters, showInactive: e.target.checked })}
+                          className="rounded border-gray-300"
+                        />
+                        Show inactive vendors
+                      </label>
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm text-gray-500">
+                          Showing {filtered.length} of {vendors.length}
+                        </span>
+                        {(vendorFilters.query || vendorFilters.category || vendorFilters.state || vendorFilters.city || vendorFilters.serviceArea) && (
+                          <button
+                            onClick={() => setVendorFilters({ query: '', category: '', state: '', city: '', serviceArea: '', showInactive: vendorFilters.showInactive })}
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                          >
+                            Clear filters
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* List */}
+                  {filtered.length === 0 ? (
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+                      <p className="text-gray-500">No vendors match the current filters.</p>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Name</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Category</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Location</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Service</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Website</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {filtered.map(v => (
+                              <tr key={v.id} className={v.active ? '' : 'bg-gray-50'}>
+                                <td className="px-4 py-3 text-sm">
+                                  <a href={`/vendor/${v.slug}`} target="_blank" className="font-medium text-blue-600 hover:underline">
+                                    {v.name}
+                                  </a>
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-700">{v.category_slug}</td>
+                                <td className="px-4 py-3 text-sm text-gray-700">
+                                  {[v.city, v.state].filter(Boolean).join(', ') || <span className="text-gray-400">—</span>}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-700 capitalize">{v.service_area}</td>
+                                <td className="px-4 py-3 text-sm">
+                                  {v.website ? (
+                                    <a href={v.website} target="_blank" rel="noopener" className="text-blue-600 hover:underline">
+                                      {v.website.replace(/^https?:\/\//, '').replace(/\/$/, '').slice(0, 30)}
+                                    </a>
+                                  ) : <span className="text-gray-400">—</span>}
+                                </td>
+                                <td className="px-4 py-3 text-sm">
+                                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                                    v.active ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'
+                                  }`}>
+                                    {v.active ? 'Active' : 'Inactive'}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-sm text-right">
+                                  <button
+                                    onClick={() => toggleVendorActive(v)}
+                                    disabled={togglingVendorId === v.id}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${
+                                      v.active
+                                        ? 'bg-red-50 text-red-700 hover:bg-red-100'
+                                        : 'bg-green-50 text-green-700 hover:bg-green-100'
+                                    }`}
+                                  >
+                                    {togglingVendorId === v.id
+                                      ? 'Saving...'
+                                      : v.active ? 'Deactivate' : 'Reactivate'}
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </>
         )}
       </div>
