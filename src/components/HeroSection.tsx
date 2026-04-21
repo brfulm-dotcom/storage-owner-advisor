@@ -5,7 +5,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  vendorCount?: number;
+  categoryCount?: number;
+}
+
+export default function HeroSection({ vendorCount, categoryCount }: HeroSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
@@ -37,19 +42,19 @@ export default function HeroSection() {
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-blue-900/70 to-gray-900/80" />
 
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Headline */}
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 text-center drop-shadow-lg">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 text-center drop-shadow-lg">
           Find Trusted Vendors for Your Storage Facility
         </h1>
 
         {/* Subheadline */}
-        <p className="text-base sm:text-lg text-blue-100 text-center mb-6 max-w-2xl mx-auto">
+        <p className="text-sm sm:text-base text-blue-100 text-center mb-4 max-w-2xl mx-auto">
           The leading directory of vetted service providers, equipment suppliers, and technology partners for self-storage owners and operators.
         </p>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="flex gap-2 mb-6 max-w-2xl mx-auto">
+        <form onSubmit={handleSearch} className="flex gap-2 mb-4 max-w-3xl mx-auto">
           <input
             type="text"
             placeholder="Search vendors, services, or products..."
@@ -66,8 +71,8 @@ export default function HeroSection() {
         </form>
 
         {/* Popular Searches */}
-        <div className="text-center">
-          <p className="text-sm text-blue-200 mb-2">Popular:</p>
+        <div className="text-center mb-4">
+          <p className="text-xs text-blue-200 mb-2">Popular:</p>
           <div className="flex flex-wrap justify-center gap-2">
             {popularSearches.map((search) => (
               <Link
@@ -80,6 +85,25 @@ export default function HeroSection() {
             ))}
           </div>
         </div>
+
+        {/* Stat Bar - compact inline */}
+        {(vendorCount || categoryCount) && (
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm text-blue-100 pt-3 border-t border-white/20 max-w-2xl mx-auto">
+            {vendorCount ? (
+              <span>
+                <strong className="text-white">{vendorCount}+</strong> Vetted Vendors
+              </span>
+            ) : null}
+            {categoryCount ? (
+              <span>
+                <strong className="text-white">{categoryCount}</strong> Categories
+              </span>
+            ) : null}
+            <span>
+              <strong className="text-white">100%</strong> Free to Browse
+            </span>
+          </div>
+        )}
       </div>
     </section>
   );

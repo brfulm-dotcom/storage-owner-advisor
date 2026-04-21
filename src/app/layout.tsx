@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   },
 };
 
+const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
+
 export default function RootLayout({
   children,
 }: {
@@ -51,6 +53,13 @@ export default function RootLayout({
             `,
           }}
         />
+        {ADSENSE_CLIENT && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+          />
+        )}
       </head>
       <body className={inter.className}>
         <Header />

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { getBlogPostBySlug, getBlogPostSlugs, getCategoryBySlug } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
@@ -34,6 +35,7 @@ export async function generateMetadata(props: BlogPostPageProps): Promise<Metada
       description: post.meta_description || post.excerpt,
       type: 'article',
       publishedTime: post.published_at || undefined,
+      ...(post.featured_image ? { images: [post.featured_image] } : {}),
     },
   };
 }
@@ -154,6 +156,20 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
             </Link>
           )}
         </header>
+
+        {/* Featured Image */}
+        {post.featured_image && (
+          <div className="relative aspect-[16/9] rounded-xl overflow-hidden mb-8 bg-gray-100">
+            <Image
+              src={post.featured_image}
+              alt={post.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 768px"
+              priority
+            />
+          </div>
+        )}
 
         {/* Content */}
         <div

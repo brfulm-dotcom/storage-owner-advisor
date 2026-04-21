@@ -72,6 +72,7 @@ interface BlogPost {
   content: string;
   category_slug: string | null;
   author: string;
+  featured_image: string | null;
   meta_description: string | null;
   status: 'draft' | 'published';
   published_at: string | null;
@@ -143,9 +144,11 @@ export default function AdminPage() {
     content: '',
     category_slug: '',
     author: 'StorageOwnerAdvisor Team',
+    featured_image: '',
     meta_description: '',
     status: 'draft' as 'draft' | 'published',
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
   // ---- Submission Approval Modal State ----
@@ -452,6 +455,7 @@ export default function AdminPage() {
       content: '',
       category_slug: '',
       author: 'StorageOwnerAdvisor Team',
+      featured_image: '',
       meta_description: '',
       status: 'draft',
     });
@@ -468,11 +472,36 @@ export default function AdminPage() {
       content: post.content,
       category_slug: post.category_slug || '',
       author: post.author,
+      featured_image: post.featured_image || '',
       meta_description: post.meta_description || '',
       status: post.status,
     });
     setShowPostForm(true);
     setShowPreview(false);
+  };
+
+  const uploadFeaturedImage = async (file: File) => {
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: { 'x-admin-password': storedPassword },
+        body: formData,
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        alert(result.error || 'Upload failed');
+        return;
+      }
+      setPostForm(prev => ({ ...prev, featured_image: result.url }));
+    } catch (err) {
+      console.error(err);
+      alert('Upload failed. Check your connection and try again.');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const savePost = async () => {
@@ -489,6 +518,7 @@ export default function AdminPage() {
           id: editingPost.id,
           ...postForm,
           category_slug: postForm.category_slug || null,
+          featured_image: postForm.featured_image || null,
           meta_description: postForm.meta_description || null,
           published_at: postForm.status === 'published' && !editingPost.published_at
             ? new Date().toISOString()
@@ -501,6 +531,7 @@ export default function AdminPage() {
           action: 'create_blog_post',
           ...postForm,
           category_slug: postForm.category_slug || null,
+          featured_image: postForm.featured_image || null,
           meta_description: postForm.meta_description || null,
           published_at: postForm.status === 'published' ? new Date().toISOString() : null,
         });
@@ -1299,6 +1330,63 @@ export default function AdminPage() {
                           className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="A brief summary of the post..."
                         />
+                      </div>
+
+                      {/* Featured Image */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Featured Image <span className="text-gray-400 font-normal">— shown on homepage and blog listing</span>
+                        </label>
+                        {postForm.featured_image ? (
+                          <div className="flex items-start gap-4">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={postForm.featured_image}
+                              alt="Featured preview"
+                              className="w-40 h-24 object-cover rounded-md border border-gray-300"
+                            />
+                            <div className="flex flex-col gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setPostForm(prev => ({ ...prev, featured_image: '' }))}
+                                className="px-3 py-1 text-sm bg-red-50 hover:bg-red-100 text-red-700 rounded-md border border-red-200"
+                              >
+                                Remove image
+                              </button>
+                              <label className="px-3 py-1 text-sm bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-md border border-gray-300 cursor-pointer text-center">
+                                Replace
+                                <input
+                                  type="file"
+                                  accept="image/jpeg,image/png,image/webp,image/gif"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) uploadFeaturedImage(file);
+                                    e.target.value = '';
+                                  }}
+                                  disabled={uploadingImage}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        ) : (
+                          <label className="flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-md px-4 py-6 cursor-pointer hover:bg-gray-50 text-gray-500 hover:text-gray-700">
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp,image/gif"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) uploadFeaturedImage(file);
+                                e.target.value = '';
+                              }}
+                              disabled={uploadingImage}
+                            />
+                            <span className="text-sm">
+                              {uploadingImage ? 'Uploading…' : 'Click to upload (JPG, PNG, WebP, GIF — max 4MB)'}
+                            </span>
+                          </label>
+                        )}
                       </div>
 
                       {/* Meta Description */}
