@@ -130,15 +130,16 @@ export default async function CategoryPage(props: CategoryPageProps) {
           </div>
         </div>
       ) : (
-        <div className="bg-white py-12 px-4 sm:px-6 lg:px-8 border-b border-gray-200">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex items-start gap-6 mb-6">
+        <div className="relative py-10 sm:py-14 md:py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-900 to-gray-900" />
+          <div className="relative max-w-7xl mx-auto">
+            <div className="flex items-start gap-6 mb-2">
               <div className="text-5xl">{category.icon}</div>
               <div className="flex-1">
-                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-2">
+                <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 drop-shadow-lg">
                   {category.name}
                 </h1>
-                <p className="text-xl text-gray-600">{category.description}</p>
+                <p className="text-lg text-blue-100">{category.description}</p>
               </div>
             </div>
           </div>

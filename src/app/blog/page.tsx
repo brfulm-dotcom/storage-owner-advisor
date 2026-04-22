@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getBlogPosts } from '@/lib/supabase';
+import PageHero from '@/components/PageHero';
 
 export const revalidate = 3600;
 
@@ -17,17 +18,10 @@ export default async function BlogPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-gradient-to-r from-blue-700 to-blue-900 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-            Storage Industry Blog
-          </h1>
-          <p className="text-lg text-blue-100">
-            Expert insights, tips, and guides for self-storage facility owners and operators.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        title="Storage Industry Blog"
+        subtitle="Expert insights, tips, and guides for self-storage facility owners and operators."
+      />
 
       {/* Posts */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

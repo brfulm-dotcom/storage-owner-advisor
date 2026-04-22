@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import PageHero from '@/components/PageHero';
 
 interface FAQItem {
   question: string;
@@ -84,18 +85,10 @@ function FAQAccordionItem({ item }: { item: FAQItem }) {
 export default function FAQPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-            Frequently Asked Questions
-          </h1>
-          <p className="text-xl text-gray-600">
-            Find answers to common questions about StorageOwnerAdvisor and our
-            vendor directory.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        title="Frequently Asked Questions"
+        subtitle="Find answers to common questions about StorageOwnerAdvisor and our vendor directory."
+      />
 
       {/* FAQ List */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

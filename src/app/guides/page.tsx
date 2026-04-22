@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import NewsletterSignup from '@/components/NewsletterSignup';
+import PageHero from '@/components/PageHero';
 
 export const metadata: Metadata = {
   title: 'Guides - StorageOwnerAdvisor',
@@ -14,19 +15,10 @@ export const metadata: Metadata = {
 export default function GuidesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-            Guides Coming Soon
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            We are building a library of comprehensive guides to help storage
-            facility owners make informed decisions about vendors, technology,
-            and operations.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        title="Guides Coming Soon"
+        subtitle="We are building a library of comprehensive guides to help storage facility owners make informed decisions about vendors, technology, and operations."
+      />
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

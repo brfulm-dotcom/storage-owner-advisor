@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PageHero from '@/components/PageHero';
 
 export const metadata: Metadata = {
   title: 'Terms of Service - StorageOwnerAdvisor',
@@ -13,18 +14,10 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-            Terms of Service
-          </h1>
-          <p className="text-xl text-gray-600">
-            Please review the terms and conditions that govern your use of
-            StorageOwnerAdvisor.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        title="Terms of Service"
+        subtitle="Please review the terms and conditions that govern your use of StorageOwnerAdvisor."
+      />
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

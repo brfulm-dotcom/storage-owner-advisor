@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import type { Category } from '@/lib/supabase';
+import PageHero from '@/components/PageHero';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -137,18 +138,10 @@ export default function SubmitPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-            Get Listed on StorageOwnerAdvisor
-          </h1>
-          <p className="text-xl text-gray-600">
-            Reach thousands of storage facility owners looking for solutions
-            like yours.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        title="Get Listed on StorageOwnerAdvisor"
+        subtitle="Reach thousands of storage facility owners looking for solutions like yours."
+      />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

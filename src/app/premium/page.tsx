@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PageHero from '@/components/PageHero';
 
 export const metadata: Metadata = {
   title: 'Premium Listings - StorageOwnerAdvisor',
@@ -68,18 +69,10 @@ const tiers = [
 export default function PremiumPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-            Get More Visibility for Your Business
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Premium listings put your business in front of storage facility
-            owners and operators actively searching for vendors like you.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        title="Get More Visibility for Your Business"
+        subtitle="Premium listings put your business in front of storage facility owners and operators actively searching for vendors like you."
+      />
 
       {/* Why Premium */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14 md:py-16">

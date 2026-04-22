@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import PageHero from '@/components/PageHero';
 
 export const metadata: Metadata = {
   title: 'Affiliate Disclosure - StorageOwnerAdvisor',
@@ -10,17 +11,10 @@ export const metadata: Metadata = {
 export default function AffiliateDisclosurePage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-            Affiliate Disclosure
-          </h1>
-          <p className="text-xl text-gray-600">
-            Transparency is important to us. Here&apos;s how affiliate links work on our site.
-          </p>
-        </div>
-      </div>
+      <PageHero
+        title="Affiliate Disclosure"
+        subtitle="Transparency is important to us. Here's how affiliate links work on our site."
+      />
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
