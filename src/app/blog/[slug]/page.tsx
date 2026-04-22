@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { getBlogPostBySlug, getBlogPostSlugs, getCategoryBySlug } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 
-export const revalidate = 60;
+export const revalidate = 86400;
 export const dynamicParams = true;
 
 interface BlogPostPageProps {
