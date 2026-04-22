@@ -30,8 +30,12 @@ export default function AdSlot({
     }
   }, []);
 
-  // Dev placeholder when AdSense isn't configured yet
-  if (!ADSENSE_CLIENT) {
+  // Real ad unit slot IDs are numeric. Anything else is a placeholder —
+  // stay silent in prod (Auto ads will handle placement) and only show
+  // a dev hint so we remember where the manual slot will go.
+  const isRealSlot = /^\d+$/.test(slot);
+
+  if (!ADSENSE_CLIENT || !isRealSlot) {
     if (process.env.NODE_ENV !== 'development') return null;
     return (
       <div className={`py-6 ${className}`}>
