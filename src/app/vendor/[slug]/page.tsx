@@ -8,8 +8,8 @@ import TrackedLink from '@/components/TrackedLink';
 import VendorReviews from '@/components/VendorReviews';
 import WriteReview from '@/components/WriteReview';
 
-// Revalidate every 60 seconds
-export const revalidate = 60;
+// Revalidate hourly; admin actions trigger on-demand revalidation for instant updates
+export const revalidate = 3600;
 
 interface VendorPageProps {
   params: Promise<{

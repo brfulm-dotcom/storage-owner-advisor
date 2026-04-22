@@ -5,8 +5,8 @@ import { getCategoryBySlug, getVendorsByCategory, getCategorySlugs } from '@/lib
 import SortableVendorGrid from '@/components/SortableVendorGrid';
 import { generateCategoryJsonLd, generateCategoryBreadcrumbJsonLd } from '@/lib/seo';
 
-// Revalidate every 60 seconds (picks up new vendors without redeploy)
-export const revalidate = 60;
+// Revalidate hourly; admin actions trigger on-demand revalidation for instant updates
+export const revalidate = 3600;
 
 interface CategoryPageProps {
   params: Promise<{

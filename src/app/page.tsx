@@ -7,8 +7,8 @@ import NewsletterSignup from '@/components/NewsletterSignup';
 import AdSlot from '@/components/AdSlot';
 import { getCategories, getVendors } from '@/lib/supabase';
 
-// Revalidate every 60 seconds so new data shows up without redeploying
-export const revalidate = 60;
+// Revalidate hourly; admin actions trigger on-demand revalidation for instant updates
+export const revalidate = 3600;
 
 export default async function Home() {
   const [categories, vendors] = await Promise.all([
