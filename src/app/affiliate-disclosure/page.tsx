@@ -5,7 +5,7 @@ import PageHero from '@/components/PageHero';
 export const metadata: Metadata = {
   title: 'Affiliate Disclosure - StorageOwnerAdvisor',
   description:
-    'Learn how StorageOwnerAdvisor uses affiliate links and how they support our mission to help storage facility owners find trusted vendors.',
+    'Learn how StorageOwnerAdvisor uses affiliate links to support our free directory helping self-storage facility owners find trusted vendors and tools.',
 };
 
 export default function AffiliateDisclosurePage() {

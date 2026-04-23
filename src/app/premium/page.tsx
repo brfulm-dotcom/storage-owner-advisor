@@ -5,7 +5,7 @@ import PageHero from '@/components/PageHero';
 export const metadata: Metadata = {
   title: 'Premium Listings - StorageOwnerAdvisor',
   description:
-    'Boost your visibility in the self-storage industry with a premium vendor listing on StorageOwnerAdvisor.',
+    'Boost your visibility with a premium vendor listing on StorageOwnerAdvisor. Featured placement, priority search ranking, and enhanced profiles for vendors.',
   alternates: {
     canonical: '/premium',
   },

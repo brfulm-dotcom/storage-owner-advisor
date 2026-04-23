@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Contact Us | StorageOwnerAdvisor',
-  description: 'Get in touch with the StorageOwnerAdvisor team. We help connect storage facility owners with trusted vendors and service providers.',
+  description: 'Contact the StorageOwnerAdvisor team with questions about vendors, listings, or partnerships. We help self-storage owners find trusted service providers.',
   alternates: {
     canonical: 'https://www.storageowneradvisor.com/contact',
   },

@@ -6,7 +6,7 @@ import PageHero from '@/components/PageHero';
 export const metadata: Metadata = {
   title: 'Guides - StorageOwnerAdvisor',
   description:
-    'Comprehensive guides for storage facility owners on choosing vendors, comparing solutions, and industry best practices. Coming soon.',
+    'Comprehensive guides for self-storage facility owners on choosing vendors, comparing solutions, operational best practices, and industry trends.',
   alternates: {
     canonical: '/guides',
   },

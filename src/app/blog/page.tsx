@@ -7,7 +7,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Blog - StorageOwnerAdvisor',
-  description: 'Expert insights, tips, and guides for self-storage facility owners and operators.',
+  description: 'Expert insights, vendor comparisons, and operational guides for self-storage facility owners. Stay current with industry trends and best practices.',
   alternates: {
     canonical: 'https://www.storageowneradvisor.com/blog',
   },

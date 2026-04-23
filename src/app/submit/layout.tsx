@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Submit Your Vendor - StorageOwnerAdvisor',
   description:
-    'Submit your company to be listed on the StorageOwnerAdvisor vendor directory. Reach thousands of storage facility owners.',
+    'Submit your company to the StorageOwnerAdvisor directory. Reach thousands of self-storage facility owners searching for vendors and service providers.',
   alternates: {
     canonical: '/submit',
   },

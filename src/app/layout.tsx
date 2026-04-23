@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.storageowneradvisor.com'),
   title: 'StorageOwnerAdvisor - Find Trusted Vendors for Your Storage Facility',
   description:
-    'Discover vetted, reliable vendors for storage facilities. Find solutions for security, climate control, property management, and more. Compare top-rated service providers.',
+    'Find vetted vendors for self-storage facilities. Compare top-rated providers for security, climate control, management software, insurance, and more.',
   keywords: [
     'storage facility vendors',
     'storage owners',

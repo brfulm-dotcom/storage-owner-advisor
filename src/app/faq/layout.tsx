@@ -3,7 +3,7 @@ import { faqs } from './faq-data';
 
 export const metadata: Metadata = {
   title: 'Frequently Asked Questions | StorageOwnerAdvisor',
-  description: 'Find answers to common questions about StorageOwnerAdvisor — how to find vendors, submit a listing, leave reviews, and more.',
+  description: 'Answers to common questions about StorageOwnerAdvisor — how to find self-storage vendors, submit a listing, claim your business, and get help.',
   alternates: {
     canonical: 'https://www.storageowneradvisor.com/faq',
   },

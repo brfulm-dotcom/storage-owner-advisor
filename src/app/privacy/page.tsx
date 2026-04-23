@@ -5,7 +5,7 @@ import PageHero from '@/components/PageHero';
 export const metadata: Metadata = {
   title: 'Privacy Policy - StorageOwnerAdvisor',
   description:
-    'Learn how StorageOwnerAdvisor collects, uses, and protects your personal information.',
+    'Read the StorageOwnerAdvisor privacy policy. Learn how we collect, use, and protect your personal information when browsing our vendor directory.',
   alternates: {
     canonical: '/privacy',
   },

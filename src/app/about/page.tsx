@@ -5,7 +5,7 @@ import PageHero from '@/components/PageHero';
 export const metadata: Metadata = {
   title: 'About StorageOwnerAdvisor',
   description:
-    'Learn about our mission to connect storage facility owners with vetted, trusted vendors and service providers.',
+    "Learn about StorageOwnerAdvisor's mission to help self-storage facility owners find vetted, trusted vendors for every aspect of running their facility.",
   alternates: {
     canonical: '/about',
   },
