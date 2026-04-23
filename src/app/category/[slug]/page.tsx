@@ -131,7 +131,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
         <div className="relative py-10 sm:py-14 md:py-16 px-4 sm:px-6 lg:px-8 border-b border-gray-200 overflow-hidden">
           <Image
             src={`/${category.hero_image}`}
-            alt=""
+            alt={`${category.name} for self-storage facilities`}
             fill
             className="object-cover"
             priority
