@@ -76,6 +76,21 @@ export default async function CategoryPage(props: CategoryPageProps) {
   const vendors = await getVendorsByCategory(category.slug);
   const jsonLd = generateCategoryJsonLd(category);
   const breadcrumbJsonLd = generateCategoryBreadcrumbJsonLd(category);
+  const faqs = category.category_faqs ?? [];
+  const faqJsonLd = faqs.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+          },
+        })),
+      }
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -88,6 +103,12 @@ export default async function CategoryPage(props: CategoryPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       {/* Breadcrumb */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -174,6 +195,42 @@ export default async function CategoryPage(props: CategoryPageProps) {
           )}
         </div>
       </div>
+
+      {/* Buyer's Guide */}
+      {category.buyer_guide && (
+        <div className="bg-white border-t border-gray-200 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div
+              className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-li:text-gray-700 prose-strong:text-gray-900"
+              dangerouslySetInnerHTML={{ __html: category.buyer_guide }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Category FAQs */}
+      {faqs.length > 0 && (
+        <div className="bg-gray-50 border-t border-gray-200 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">
+              Frequently asked questions about {category.name.toLowerCase()}
+            </h2>
+            <div className="space-y-6">
+              {faqs.map((faq, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white rounded-lg border border-gray-200 p-6"
+                >
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    {faq.question}
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

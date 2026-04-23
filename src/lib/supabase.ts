@@ -22,6 +22,11 @@ export function isSupabaseReady(): boolean {
 // DATABASE TYPES (match the Supabase tables)
 // =============================================================
 
+export interface CategoryFaq {
+  question: string;
+  answer: string;
+}
+
 export interface Category {
   id?: number;
   slug: string;
@@ -32,6 +37,8 @@ export interface Category {
   visible: boolean;
   sort_order?: number;
   hero_image?: string | null;
+  buyer_guide?: string | null;
+  category_faqs?: CategoryFaq[] | null;
   created_at?: string;
 }
 
