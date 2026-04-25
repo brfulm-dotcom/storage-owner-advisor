@@ -27,38 +27,52 @@ function ensureUrl(url: string | null | undefined): string {
   return `https://${url}`;
 }
 
+const doorStyle: React.CSSProperties = {
+  backgroundImage: [
+    'linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0) 12px)',
+    'repeating-linear-gradient(to bottom, #fb923c 0, #fb923c 3px, #ea580c 3px, #ea580c 6px, #c2410c 6px, #c2410c 7px)',
+  ].join(', '),
+  boxShadow: 'inset 0 -6px 8px rgba(0,0,0,0.25)',
+};
+
+const railStyle: React.CSSProperties = {
+  background: 'linear-gradient(to right, #44403c, #78716c, #44403c)',
+};
+
 export default function VendorCard({ vendor, categoryName }: VendorCardProps) {
   const isFeatured = vendor.tier === 'featured' || vendor.tier === 'premium';
 
   return (
-    <div
-      className={`h-full bg-white rounded-lg border transition-all duration-300 overflow-hidden ${
-        isFeatured
-          ? 'border-orange-400 shadow-md hover:shadow-lg'
-          : 'border-gray-200 hover:shadow-md'
-      }`}
-    >
-      {/* Premium/Featured top accent bar */}
-      {isFeatured && (
-        <div className="bg-gradient-to-r from-orange-400 to-orange-500 px-4 py-1.5 flex items-center justify-between">
-          <span className="text-white text-xs font-bold tracking-wide">
-            {vendor.tier === 'premium' ? '⭐ PREMIUM' : '✨ FEATURED'}
-          </span>
-          {categoryName && (
-            <span className="text-orange-100 text-xs font-medium">
-              {categoryName}
-            </span>
-          )}
-        </div>
-      )}
+    <div className="h-full bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300">
+      {/* Roll-up storage door */}
+      <div
+        className="relative h-14 border border-b-[3px] border-orange-900 border-b-orange-950"
+        style={doorStyle}
+      >
+        <div className="absolute top-0 -bottom-px left-0 w-1.5" style={railStyle} aria-hidden="true" />
+        <div className="absolute top-0 -bottom-px right-0 w-1.5" style={railStyle} aria-hidden="true" />
+        <div
+          className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-9 h-2 bg-gray-800 rounded-sm shadow-md"
+          aria-hidden="true"
+        />
+      </div>
 
-      <div className="p-4">
-        {/* Top row: Name + Category (for free tier) */}
+      <div className="p-4 border-l-[3px] border-r-[3px] border-b border-stone-500 border-b-gray-200">
+        {/* Featured/Premium badge */}
+        {isFeatured && (
+          <div className="mb-2">
+            <span className="inline-block px-2 py-0.5 bg-orange-100 text-orange-800 text-xs font-bold tracking-wide rounded">
+              {vendor.tier === 'premium' ? '⭐ PREMIUM' : '✨ FEATURED'}
+            </span>
+          </div>
+        )}
+
+        {/* Top row: Name + Category */}
         <div className="flex items-start justify-between gap-2 mb-1">
           <h3 className="text-base font-bold text-gray-900 line-clamp-1">
             {vendor.name}
           </h3>
-          {!isFeatured && categoryName && (
+          {categoryName && (
             <span className="flex-shrink-0 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">
               {categoryName}
             </span>
