@@ -235,7 +235,7 @@ export default async function SEOLandingPage(props: SEOPageProps) {
                   {cities.map((city) => (
                     <Link
                       key={city}
-                      href={`/best/${category}/${city.toLowerCase().replace(/\s+/g, '-')}-${stateToSlug(stateName)}`}
+                      href={`/best/${category}/${stateToSlug(stateName)}/${city.toLowerCase().replace(/\s+/g, '-')}`}
                       className="block text-sm text-blue-600 hover:text-blue-700 hover:underline"
                     >
                       {categoryData?.name || slugToName(category)} in {city}

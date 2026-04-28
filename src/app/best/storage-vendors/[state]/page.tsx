@@ -190,7 +190,7 @@ export default async function StateOverviewPage(props: StateOverviewProps) {
                   {cities.slice(0, 10).map((city) => (
                     <Link
                       key={city}
-                      href={`/best/${categories.filter((c) => c.visible)[0].slug}/${city.toLowerCase().replace(/\s+/g, '-')}-${stateToSlug(stateName)}`}
+                      href={`/best/storage-vendors/${stateToSlug(stateName)}/${city.toLowerCase().replace(/\s+/g, '-')}`}
                       className="block text-sm text-blue-600 hover:text-blue-700 hover:underline"
                     >
                       {city}

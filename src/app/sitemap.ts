@@ -4,12 +4,16 @@
 // =============================================================
 
 import { MetadataRoute } from 'next';
-import { getCategories, getVendors, getVendorsByCategory, getUniqueStates, getCategorySlugs, getBlogPostSlugs } from '@/lib/supabase';
+import { getCategories, getVendors, getVendorsByCategory, getUniqueStates, getCategorySlugs, getBlogPostSlugs, getUniqueCitiesByState } from '@/lib/supabase';
 
 const BASE_URL = 'https://www.storageowneradvisor.com';
 
 function stateToSlug(state: string): string {
   return state.toLowerCase().replace(/\s+/g, '-');
+}
+
+function cityToSlug(city: string): string {
+  return city.toLowerCase().replace(/\s+/g, '-');
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -72,6 +76,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
+  // SEO Landing Pages - City pages (storage-vendors overview + per category)
+  // Pull cities for each state in parallel, then expand into per-category combos.
+  const cityResults = await Promise.all(
+    states.map(async (state) => ({
+      state,
+      cities: await getUniqueCitiesByState(state),
+    }))
+  );
+
+  const cityOverviewPages = cityResults.flatMap(({ state, cities }) =>
+    cities.map((city) => ({
+      url: `${BASE_URL}/best/storage-vendors/${stateToSlug(state)}/${cityToSlug(city)}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    }))
+  );
+
+  const cityCategoryPages = cityResults.flatMap(({ state, cities }) =>
+    cities.flatMap((city) =>
+      categorySlugs.map((cat) => ({
+        url: `${BASE_URL}/best/${cat}/${stateToSlug(state)}/${cityToSlug(city)}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      }))
+    )
+  );
+
   // Blog post pages
   const blogUrls = blogSlugs.map((slug) => ({
     url: `${BASE_URL}/blog/${slug}`,
@@ -101,6 +134,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...vendorPages,
     ...stateOverviewPages,
     ...stateCategoryPages,
+    ...cityOverviewPages,
+    ...cityCategoryPages,
     ...blogUrls,
     ...comparePages,
   ];
