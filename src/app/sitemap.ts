@@ -114,13 +114,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Comparison pages - management software (highest value)
+  // IMPORTANT: emit slugs in alphabetical order to match the canonical
+  // tag set by compare/[slug]/page.tsx (which sorts alphabetically).
+  // Mismatched ordering causes "Alternate page with proper canonical
+  // tag" reports in Google Search Console.
   const softwareVendors = await getVendorsByCategory('management-software');
   const topSoftware = softwareVendors.slice(0, 10);
   const comparePages: MetadataRoute.Sitemap = [];
   for (let i = 0; i < topSoftware.length; i++) {
     for (let j = i + 1; j < topSoftware.length; j++) {
+      const canonicalSlug = [topSoftware[i].slug, topSoftware[j].slug].sort().join('-vs-');
       comparePages.push({
-        url: `${BASE_URL}/compare/${topSoftware[i].slug}-vs-${topSoftware[j].slug}`,
+        url: `${BASE_URL}/compare/${canonicalSlug}`,
         lastModified: new Date(),
         changeFrequency: 'monthly' as const,
         priority: 0.7,
