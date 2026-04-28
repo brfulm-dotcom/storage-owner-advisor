@@ -172,7 +172,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-            <p>&copy; 2024 StorageOwnerAdvisor. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} StorageOwnerAdvisor. All rights reserved.</p>
             <div className="flex gap-6">
               <Link
                 href="/privacy"

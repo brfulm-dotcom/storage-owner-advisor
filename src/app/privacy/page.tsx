@@ -23,7 +23,7 @@ export default function PrivacyPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 sm:p-12">
           <p className="text-sm text-gray-500 mb-8">
-            Last updated: March 2026
+            Last updated: April 2026
           </p>
 
           <div className="prose prose-gray max-w-none space-y-10">
@@ -129,11 +129,107 @@ export default function PrivacyPage() {
                   <strong className="text-gray-900">Vercel:</strong> Used for
                   website hosting and deployment.
                 </li>
+                <li>
+                  <strong className="text-gray-900">Google AdSense:</strong>{' '}
+                  Used to display advertisements on our site. Google and its
+                  partners use cookies to serve ads based on your prior visits
+                  to our website and other websites on the internet. See the
+                  &quot;Advertising&quot; section below for details and opt-out
+                  options.
+                </li>
               </ul>
               <p className="text-gray-600 mt-4">
                 Each of these services has its own privacy policy governing how
                 they handle data. We encourage you to review their respective
                 policies.
+              </p>
+            </section>
+
+            {/* Advertising */}
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Advertising
+              </h2>
+              <p className="text-gray-600 mb-4">
+                We use Google AdSense, a third-party advertising service
+                provided by Google, to display ads on our site. Google AdSense
+                and its partners (including third-party vendors) may use
+                cookies, web beacons, and similar technologies to:
+              </p>
+              <ul className="list-disc pl-6 space-y-3 text-gray-600">
+                <li>
+                  Serve ads to you based on your prior visits to our website
+                  and other websites on the internet.
+                </li>
+                <li>
+                  Measure ad performance and provide reports to advertisers.
+                </li>
+                <li>
+                  Help prevent fraud and abuse on advertising platforms.
+                </li>
+              </ul>
+              <p className="text-gray-600 mt-4">
+                Google&apos;s use of advertising cookies enables it and its
+                partners to serve ads to you based on your visit to this site
+                and/or other sites on the internet. You can learn more about
+                how Google uses information from sites or apps that use its
+                services by visiting{' '}
+                <a
+                  href="https://policies.google.com/technologies/partner-sites"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-700 font-semibold"
+                >
+                  policies.google.com/technologies/partner-sites
+                </a>
+                .
+              </p>
+              <p className="text-gray-600 mt-4">
+                <strong className="text-gray-900">How to opt out:</strong> You
+                can opt out of personalized advertising by:
+              </p>
+              <ul className="list-disc pl-6 space-y-3 text-gray-600">
+                <li>
+                  Visiting Google Ads Settings at{' '}
+                  <a
+                    href="https://www.google.com/settings/ads"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 font-semibold"
+                  >
+                    google.com/settings/ads
+                  </a>{' '}
+                  to manage your Google ad preferences.
+                </li>
+                <li>
+                  Visiting{' '}
+                  <a
+                    href="https://www.aboutads.info"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 font-semibold"
+                  >
+                    aboutads.info
+                  </a>{' '}
+                  to opt out of third-party vendor cookies for personalized
+                  advertising.
+                </li>
+                <li>
+                  Visiting{' '}
+                  <a
+                    href="https://www.youronlinechoices.eu"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 font-semibold"
+                  >
+                    youronlinechoices.eu
+                  </a>{' '}
+                  if you are located in the European Union.
+                </li>
+              </ul>
+              <p className="text-gray-600 mt-4">
+                Opting out of personalized advertising does not stop ads from
+                being shown — you may still see non-personalized ads.
               </p>
             </section>
 
@@ -152,6 +248,12 @@ export default function PrivacyPage() {
                   Google Analytics uses cookies to track page views, session
                   duration, and user interactions. These cookies help us
                   understand how visitors use our site.
+                </li>
+                <li>
+                  <strong className="text-gray-900">Advertising cookies:</strong>{' '}
+                  Google AdSense and its third-party partners use cookies to
+                  serve and measure advertisements. See the
+                  &quot;Advertising&quot; section below for opt-out options.
                 </li>
                 <li>
                   <strong className="text-gray-900">Essential cookies:</strong>{' '}
