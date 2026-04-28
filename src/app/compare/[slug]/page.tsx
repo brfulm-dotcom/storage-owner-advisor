@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { permanentRedirect } from 'next/navigation';
 import { getVendorBySlug, getVendorsByCategory, getCategoryBySlug } from '@/lib/supabase';
 import { Vendor } from '@/lib/supabase';
 import StarRating from '@/components/StarRating';
@@ -163,6 +164,15 @@ export default async function ComparePage(props: ComparePageProps) {
     );
   }
 
+  // Canonicalize: 301 redirect to alphabetically-sorted slug to avoid
+  // a-vs-b / b-vs-a duplicates in Google's index. Matches the canonical
+  // tag in generateMetadata so sitemap, internal links, and Google's
+  // crawler all converge on one URL per pair.
+  const canonicalSlug = [parsed.slug1, parsed.slug2].sort().join('-vs-');
+  if (slug !== canonicalSlug) {
+    permanentRedirect(`/compare/${canonicalSlug}`);
+  }
+
   const [vendor1, vendor2] = await Promise.all([
     getVendorBySlug(parsed.slug1),
     getVendorBySlug(parsed.slug2),
@@ -195,7 +205,7 @@ export default async function ComparePage(props: ComparePageProps) {
     '@type': 'WebPage',
     name: `${vendor1.name} vs ${vendor2.name}`,
     description: `Side-by-side comparison of ${vendor1.name} and ${vendor2.name}`,
-    url: `https://www.storageowneradvisor.com/compare/${slug}`,
+    url: `https://www.storageowneradvisor.com/compare/${canonicalSlug}`,
   };
 
   return (
@@ -388,13 +398,13 @@ export default async function ComparePage(props: ComparePageProps) {
                   {otherVendors.map((v) => (
                     <div key={v.slug} className="space-y-1">
                       <Link
-                        href={`/compare/${vendor1.slug}-vs-${v.slug}`}
+                        href={`/compare/${[vendor1.slug, v.slug].sort().join('-vs-')}`}
                         className="block text-sm text-blue-600 hover:underline"
                       >
                         {vendor1.name} vs {v.name}
                       </Link>
                       <Link
-                        href={`/compare/${vendor2.slug}-vs-${v.slug}`}
+                        href={`/compare/${[vendor2.slug, v.slug].sort().join('-vs-')}`}
                         className="block text-sm text-blue-600 hover:underline"
                       >
                         {vendor2.name} vs {v.name}
