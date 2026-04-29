@@ -68,7 +68,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { table, id, status, approved, active } = body;
+  const { table, id, status, approved } = body;
 
   if (!table || !['submissions', 'claims', 'vendor_reviews', 'blog_posts', 'vendors'].includes(table)) {
     return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
@@ -76,17 +76,50 @@ export async function PATCH(request: NextRequest) {
 
   const supabase = getAdminClient();
 
-  // vendors — only the active flag can be toggled via this endpoint
+  // vendors — accepts a whitelist of editable fields
   if (table === 'vendors') {
-    const { error } = await supabase
+    const ALLOWED_VENDOR_FIELDS = [
+      'active', 'tier', 'featured', 'affiliate_url', 'verified',
+      'rating', 'review_count', 'short_description', 'full_description',
+      'website', 'phone', 'email', 'logo', 'features', 'pricing',
+      'city', 'state', 'headquarters', 'service_area', 'year_founded',
+    ];
+
+    const updateFields: Record<string, unknown> = {};
+    for (const key of ALLOWED_VENDOR_FIELDS) {
+      if (key in body) updateFields[key] = body[key];
+    }
+
+    // Keep `featured` boolean in sync with `tier` whenever tier is being set
+    if ('tier' in updateFields) {
+      updateFields.featured = updateFields.tier === 'featured';
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
+    }
+
+    const { data: updated, error } = await supabase
       .from('vendors')
-      .update({ active: active === true })
-      .eq('id', id);
+      .update(updateFields)
+      .eq('id', id)
+      .select('slug, category_slug')
+      .single();
 
     if (error) {
-      console.error('Error updating vendor active flag:', error);
+      console.error('Error updating vendor:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    // Revalidate pages that show this vendor so changes go live immediately
+    try {
+      if (updated?.slug) revalidatePath(`/vendor/${updated.slug}`, 'page');
+      if (updated?.category_slug) revalidatePath(`/category/${updated.category_slug}`, 'page');
+      revalidatePath('/', 'layout');
+    } catch {
+      // Non-critical
+    }
+
     return NextResponse.json({ success: true });
   }
 

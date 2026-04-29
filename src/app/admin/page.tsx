@@ -102,6 +102,21 @@ interface AdminVendor {
   state: string | null;
   service_area: 'local' | 'national';
   active: boolean;
+  tier: 'free' | 'premium' | 'featured';
+  featured: boolean;
+  affiliate_url: string | null;
+  verified: boolean;
+  rating: number;
+  review_count: number;
+  short_description: string | null;
+  full_description: string | null;
+  phone: string | null;
+  email: string | null;
+  logo: string | null;
+  features: string[] | null;
+  pricing: string | null;
+  headquarters: string | null;
+  year_founded: number | null;
 }
 
 type Tab = 'submissions' | 'claims' | 'contacts' | 'newsletter' | 'analytics' | 'blog' | 'reviews' | 'vendors';
@@ -134,6 +149,28 @@ export default function AdminPage() {
     showInactive: true,
   });
   const [togglingVendorId, setTogglingVendorId] = useState<number | null>(null);
+  const [editVendorModal, setEditVendorModal] = useState<{ open: boolean; vendor: AdminVendor | null }>({ open: false, vendor: null });
+  const [editVendorForm, setEditVendorForm] = useState({
+    tier: 'free' as 'free' | 'premium' | 'featured',
+    affiliate_url: '',
+    verified: false,
+    rating: '',
+    review_count: '',
+    short_description: '',
+    full_description: '',
+    website: '',
+    phone: '',
+    email: '',
+    logo: '',
+    features: '',
+    pricing: '',
+    city: '',
+    state: '',
+    headquarters: '',
+    service_area: 'national' as 'local' | 'national',
+    year_founded: '',
+  });
+  const [savingVendor, setSavingVendor] = useState(false);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [showPostForm, setShowPostForm] = useState(false);
@@ -312,6 +349,102 @@ export default function AdminPage() {
       alert('Failed to update vendor.');
     } finally {
       setTogglingVendorId(null);
+    }
+  };
+
+  // ---- Open vendor edit modal ----
+  const openEditVendor = (vendor: AdminVendor) => {
+    setEditVendorForm({
+      tier: vendor.tier || 'free',
+      affiliate_url: vendor.affiliate_url || '',
+      verified: vendor.verified === true,
+      rating: vendor.rating != null ? String(vendor.rating) : '',
+      review_count: vendor.review_count != null ? String(vendor.review_count) : '',
+      short_description: vendor.short_description || '',
+      full_description: vendor.full_description || '',
+      website: vendor.website || '',
+      phone: vendor.phone || '',
+      email: vendor.email || '',
+      logo: vendor.logo || '',
+      features: Array.isArray(vendor.features) ? vendor.features.join(', ') : '',
+      pricing: vendor.pricing || '',
+      city: vendor.city || '',
+      state: vendor.state || '',
+      headquarters: vendor.headquarters || '',
+      service_area: vendor.service_area || 'national',
+      year_founded: vendor.year_founded != null ? String(vendor.year_founded) : '',
+    });
+    setEditVendorModal({ open: true, vendor });
+  };
+
+  // ---- Save vendor edits ----
+  const saveVendor = async () => {
+    const vendor = editVendorModal.vendor;
+    if (!vendor) return;
+
+    // Build update payload — convert form strings back to proper types
+    const ratingNum = editVendorForm.rating === '' ? null : parseFloat(editVendorForm.rating);
+    if (ratingNum !== null && (isNaN(ratingNum) || ratingNum < 0 || ratingNum > 5)) {
+      alert('Rating must be a number between 0 and 5.');
+      return;
+    }
+    const reviewCountNum = editVendorForm.review_count === '' ? 0 : parseInt(editVendorForm.review_count, 10);
+    if (isNaN(reviewCountNum) || reviewCountNum < 0) {
+      alert('Review count must be a non-negative integer.');
+      return;
+    }
+    const yearNum = editVendorForm.year_founded === '' ? null : parseInt(editVendorForm.year_founded, 10);
+    if (yearNum !== null && (isNaN(yearNum) || yearNum < 1800 || yearNum > 2100)) {
+      alert('Year founded must be a valid year.');
+      return;
+    }
+
+    const featuresArr = editVendorForm.features
+      .split(',')
+      .map(f => f.trim())
+      .filter(Boolean);
+
+    const payload = {
+      table: 'vendors',
+      id: vendor.id,
+      tier: editVendorForm.tier,
+      affiliate_url: editVendorForm.affiliate_url.trim() || null,
+      verified: editVendorForm.verified,
+      rating: ratingNum ?? 0,
+      review_count: reviewCountNum,
+      short_description: editVendorForm.short_description.trim() || null,
+      full_description: editVendorForm.full_description.trim() || null,
+      website: editVendorForm.website.trim(),
+      phone: editVendorForm.phone.trim() || null,
+      email: editVendorForm.email.trim() || null,
+      logo: editVendorForm.logo.trim() || null,
+      features: featuresArr,
+      pricing: editVendorForm.pricing.trim() || null,
+      city: editVendorForm.city.trim() || null,
+      state: editVendorForm.state.trim() || null,
+      headquarters: editVendorForm.headquarters.trim() || null,
+      service_area: editVendorForm.service_area,
+      year_founded: yearNum,
+    };
+
+    setSavingVendor(true);
+    try {
+      const result = await apiCall('PATCH', undefined, payload);
+      if (result.success) {
+        // Update in place — sync featured boolean from tier
+        setVendors(prev => prev.map(v => v.id === vendor.id ? {
+          ...v,
+          ...payload,
+          featured: payload.tier === 'featured',
+        } as AdminVendor : v));
+        setEditVendorModal({ open: false, vendor: null });
+      } else {
+        alert('Error: ' + (result.error || 'Unknown error'));
+      }
+    } catch {
+      alert('Failed to save vendor.');
+    } finally {
+      setSavingVendor(false);
     }
   };
 
@@ -1814,9 +1947,10 @@ export default function AdminPage() {
                               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Category</th>
                               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Location</th>
                               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Service</th>
+                              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Tier</th>
                               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Website</th>
                               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Action</th>
+                              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Actions</th>
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
@@ -1833,6 +1967,15 @@ export default function AdminPage() {
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-700 capitalize">{v.service_area}</td>
                                 <td className="px-4 py-3 text-sm">
+                                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${
+                                    v.tier === 'featured' ? 'bg-yellow-100 text-yellow-800' :
+                                    v.tier === 'premium' ? 'bg-blue-100 text-blue-800' :
+                                    'bg-gray-100 text-gray-700'
+                                  }`}>
+                                    {v.tier || 'free'}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-sm">
                                   {v.website ? (
                                     <a href={v.website} target="_blank" rel="noopener" className="text-blue-600 hover:underline">
                                       {v.website.replace(/^https?:\/\//, '').replace(/\/$/, '').slice(0, 30)}
@@ -1847,19 +1990,27 @@ export default function AdminPage() {
                                   </span>
                                 </td>
                                 <td className="px-4 py-3 text-sm text-right">
-                                  <button
-                                    onClick={() => toggleVendorActive(v)}
-                                    disabled={togglingVendorId === v.id}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${
-                                      v.active
-                                        ? 'bg-red-50 text-red-700 hover:bg-red-100'
-                                        : 'bg-green-50 text-green-700 hover:bg-green-100'
-                                    }`}
-                                  >
-                                    {togglingVendorId === v.id
-                                      ? 'Saving...'
-                                      : v.active ? 'Deactivate' : 'Reactivate'}
-                                  </button>
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button
+                                      onClick={() => openEditVendor(v)}
+                                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      onClick={() => toggleVendorActive(v)}
+                                      disabled={togglingVendorId === v.id}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 ${
+                                        v.active
+                                          ? 'bg-red-50 text-red-700 hover:bg-red-100'
+                                          : 'bg-green-50 text-green-700 hover:bg-green-100'
+                                      }`}
+                                    >
+                                      {togglingVendorId === v.id
+                                        ? 'Saving...'
+                                        : v.active ? 'Deactivate' : 'Reactivate'}
+                                    </button>
+                                  </div>
                                 </td>
                               </tr>
                             ))}
@@ -2004,6 +2155,289 @@ export default function AdminPage() {
                 <button
                   onClick={() => setApprovalModal({ open: false, submission: null })}
                   className="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======== EDIT VENDOR MODAL ======== */}
+      {editVendorModal.open && editVendorModal.vendor && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-1">
+                <h3 className="text-xl font-bold text-gray-900">
+                  Edit Vendor
+                </h3>
+                <button
+                  onClick={() => setEditVendorModal({ open: false, vendor: null })}
+                  className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                  aria-label="Close"
+                >
+                  ×
+                </button>
+              </div>
+              <p className="text-sm text-gray-500 mb-6">
+                Editing <strong>{editVendorModal.vendor.name}</strong>
+                {' · '}
+                <a href={`/vendor/${editVendorModal.vendor.slug}`} target="_blank" className="text-blue-600 hover:underline">
+                  /vendor/{editVendorModal.vendor.slug}
+                </a>
+              </p>
+
+              {/* TIER & STATUS */}
+              <div className="mb-6">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Tier & Status</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tier
+                    </label>
+                    <select
+                      value={editVendorForm.tier}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, tier: e.target.value as 'free' | 'premium' | 'featured' })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="free">Free</option>
+                      <option value="premium">Premium</option>
+                      <option value="featured">Featured</option>
+                    </select>
+                    <p className="text-xs text-gray-400 mt-1">Featured vendors appear on the homepage and at the top of category pages.</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Verified</label>
+                    <label className="flex items-center gap-2 mt-2">
+                      <input
+                        type="checkbox"
+                        checked={editVendorForm.verified}
+                        onChange={(e) => setEditVendorForm({ ...editVendorForm, verified: e.target.checked })}
+                        className="rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">Show verified badge</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Affiliate URL</label>
+                  <input
+                    type="text"
+                    value={editVendorForm.affiliate_url}
+                    onChange={(e) => setEditVendorForm({ ...editVendorForm, affiliate_url: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="https://... (tracked affiliate link, leave blank to use Website)"
+                  />
+                </div>
+              </div>
+
+              {/* RATINGS */}
+              <div className="mb-6">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Ratings</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Rating (0-5)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      value={editVendorForm.rating}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, rating: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g. 4.2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Review Count</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={editVendorForm.review_count}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, review_count: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g. 124"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* DESCRIPTION */}
+              <div className="mb-6">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Description</h4>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
+                  <textarea
+                    rows={2}
+                    value={editVendorForm.short_description}
+                    onChange={(e) => setEditVendorForm({ ...editVendorForm, short_description: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Brief tagline for the vendor card"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">{editVendorForm.short_description.length}/150 chars</p>
+                </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Description</label>
+                  <textarea
+                    rows={5}
+                    value={editVendorForm.full_description}
+                    onChange={(e) => setEditVendorForm({ ...editVendorForm, full_description: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Long-form description shown on the vendor profile page"
+                  />
+                </div>
+              </div>
+
+              {/* CONTACT */}
+              <div className="mb-6">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Contact</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                    <input
+                      type="text"
+                      value={editVendorForm.website}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, website: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="https://example.com"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input
+                      type="text"
+                      value={editVendorForm.phone}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, phone: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input
+                      type="text"
+                      value={editVendorForm.email}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, email: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="contact@example.com"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
+                    <input
+                      type="text"
+                      value={editVendorForm.logo}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, logo: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* DETAILS */}
+              <div className="mb-6">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Details</h4>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Features</label>
+                  <input
+                    type="text"
+                    value={editVendorForm.features}
+                    onChange={(e) => setEditVendorForm({ ...editVendorForm, features: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Feature 1, Feature 2, Feature 3"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Comma-separated list of bullet-point features.</p>
+                </div>
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Pricing</label>
+                    <input
+                      type="text"
+                      value={editVendorForm.pricing}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, pricing: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g. Starts at $99/mo"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Year Founded</label>
+                    <input
+                      type="number"
+                      min="1800"
+                      max="2100"
+                      value={editVendorForm.year_founded}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, year_founded: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="e.g. 2015"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* LOCATION */}
+              <div className="mb-6">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Location</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                    <input
+                      type="text"
+                      value={editVendorForm.city}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, city: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Austin"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                    <input
+                      type="text"
+                      value={editVendorForm.state}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, state: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="TX"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Headquarters</label>
+                    <input
+                      type="text"
+                      value={editVendorForm.headquarters}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, headquarters: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Austin, TX"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Service Area</label>
+                    <select
+                      value={editVendorForm.service_area}
+                      onChange={(e) => setEditVendorForm({ ...editVendorForm, service_area: e.target.value as 'local' | 'national' })}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="national">National</option>
+                      <option value="local">Local</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
+                <button
+                  onClick={saveVendor}
+                  disabled={savingVendor}
+                  className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors"
+                >
+                  {savingVendor ? 'Saving...' : 'Save Changes'}
+                </button>
+                <button
+                  onClick={() => setEditVendorModal({ open: false, vendor: null })}
+                  disabled={savingVendor}
+                  className="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 text-gray-700 font-medium rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
