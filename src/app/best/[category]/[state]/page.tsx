@@ -67,12 +67,18 @@ export async function generateMetadata(props: SEOPageProps): Promise<Metadata> {
   const categoryName = categoryToReadable(category);
   const year = new Date().getFullYear();
 
+  // Noindex thin pages (fewer than 3 vendors) so Google doesn't flag them as
+  // low-value content. Links are still followed.
+  const vendors = await getVendorsByStateAndCategory(stateName, category);
+  const isThin = vendors.length < 3;
+
   return {
     title: `Best ${categoryName} in ${stateName} (${year}) | StorageOwnerAdvisor`,
     description: `Compare the top ${categoryName.toLowerCase()} providers in ${stateName}. Read reviews, compare features, and find the best solution for your storage facility.`,
     alternates: {
       canonical: `https://www.storageowneradvisor.com/best/${category}/${state}`,
     },
+    robots: isThin ? { index: false, follow: true } : undefined,
     openGraph: {
       title: `Best ${categoryName} in ${stateName} (${year})`,
       description: `Find and compare the best ${categoryName.toLowerCase()} providers serving ${stateName} storage facilities.`,

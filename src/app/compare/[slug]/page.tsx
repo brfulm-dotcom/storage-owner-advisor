@@ -59,6 +59,10 @@ export async function generateMetadata(props: ComparePageProps): Promise<Metadat
     alternates: {
       canonical: `https://www.storageowneradvisor.com/compare/${canonicalSlug}`,
     },
+    // Noindex comparison pages: each is just two vendors side by side, which
+    // Google may classify as thin content. Re-enable per-page once we add
+    // substantive editorial commentary to the comparisons.
+    robots: { index: false, follow: true },
     openGraph: {
       title: `${vendor1.name} vs ${vendor2.name} (${year})`,
       description: `Side-by-side comparison of ${vendor1.name} and ${vendor2.name} for self-storage facilities.`,

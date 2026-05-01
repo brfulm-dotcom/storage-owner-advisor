@@ -83,12 +83,28 @@ export async function generateMetadata(props: CityCategoryPageProps): Promise<Me
   const categoryName = categoryToReadable(category);
   const year = new Date().getFullYear();
 
+  // Noindex thin pages (fewer than 3 vendors total) so Google doesn't flag
+  // them as low-value content. Links are still followed.
+  const allVendors = await getVendorsByStateAndCategory(stateName, category);
+  const localCount = allVendors.filter(
+    (v) =>
+      v.city?.toLowerCase() === cityName.toLowerCase() &&
+      v.state?.toLowerCase() === stateName.toLowerCase()
+  ).length;
+  const nationalCount = allVendors.filter(
+    (v) =>
+      v.service_area?.toLowerCase() === 'national' &&
+      v.city?.toLowerCase() !== cityName.toLowerCase()
+  ).length;
+  const isThin = localCount + nationalCount < 3;
+
   return {
     title: `Best ${categoryName} in ${cityName}, ${stateName} (${year}) | StorageOwnerAdvisor`,
     description: `Compare top ${categoryName.toLowerCase()} providers serving storage facilities in ${cityName}, ${stateName}. Read reviews, compare features, and find the best local solution.`,
     alternates: {
       canonical: `https://www.storageowneradvisor.com/best/${category}/${state}/${city}`,
     },
+    robots: isThin ? { index: false, follow: true } : undefined,
     openGraph: {
       title: `Best ${categoryName} in ${cityName}, ${stateName} (${year})`,
       description: `Find and compare ${categoryName.toLowerCase()} providers in ${cityName}, ${stateName}.`,

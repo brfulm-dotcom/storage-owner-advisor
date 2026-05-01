@@ -34,12 +34,18 @@ export async function generateMetadata(props: StateOverviewProps): Promise<Metad
   const stateName = slugToName(state);
   const year = new Date().getFullYear();
 
+  // Noindex thin pages (fewer than 3 vendors) so Google doesn't flag them as
+  // low-value content. Links are still followed.
+  const vendors = await getVendorsByState(stateName);
+  const isThin = vendors.length < 3;
+
   return {
     title: `Best Storage Facility Vendors in ${stateName} (${year}) | StorageOwnerAdvisor`,
     description: `Find the best self-storage vendors in ${stateName}. Compare software, security, construction, insurance, and more for your storage facility.`,
     alternates: {
       canonical: `https://www.storageowneradvisor.com/best/storage-vendors/${state}`,
     },
+    robots: isThin ? { index: false, follow: true } : undefined,
     openGraph: {
       title: `Best Storage Facility Vendors in ${stateName} (${year})`,
       description: `Compare top storage facility vendors across all categories in ${stateName}.`,

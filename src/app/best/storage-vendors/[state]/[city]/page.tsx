@@ -48,12 +48,21 @@ export async function generateMetadata(props: CityOverviewProps): Promise<Metada
   const cityName = slugToName(city);
   const year = new Date().getFullYear();
 
+  // Noindex thin pages (fewer than 3 local vendors) so Google doesn't flag
+  // them as low-value content. Links are still followed.
+  const allVendors = await getVendorsByState(stateName);
+  const localCount = allVendors.filter(
+    (v) => v.city?.toLowerCase() === cityName.toLowerCase()
+  ).length;
+  const isThin = localCount < 3;
+
   return {
     title: `Best Storage Facility Vendors in ${cityName}, ${stateName} (${year}) | StorageOwnerAdvisor`,
     description: `Find storage facility vendors serving ${cityName}, ${stateName}. Compare software, security, construction, insurance, and more across all categories.`,
     alternates: {
       canonical: `https://www.storageowneradvisor.com/best/storage-vendors/${state}/${city}`,
     },
+    robots: isThin ? { index: false, follow: true } : undefined,
     openGraph: {
       title: `Best Storage Facility Vendors in ${cityName}, ${stateName} (${year})`,
       description: `Compare storage facility vendors across all categories serving ${cityName}, ${stateName}.`,
