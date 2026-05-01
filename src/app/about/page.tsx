@@ -5,7 +5,7 @@ import PageHero from '@/components/PageHero';
 export const metadata: Metadata = {
   title: 'About StorageOwnerAdvisor',
   description:
-    "Learn about StorageOwnerAdvisor's mission to help self-storage facility owners find vetted, trusted vendors for every aspect of running their facility.",
+    "Independent research and reviews of vendors serving the self-storage industry. Learn about our editorial team, methodology, and how we keep reviews independent.",
   alternates: {
     canonical: '/about',
   },
@@ -16,142 +16,175 @@ export default function AboutPage() {
     <div className="min-h-screen bg-gray-50">
       <PageHero
         title="About StorageOwnerAdvisor"
-        subtitle="Your trusted directory for finding vetted vendors and service providers for storage facilities."
+        subtitle="Independent research and reviews of vendors serving self-storage facility owners."
       />
 
-      {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Mission */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">Why We Exist</h2>
           <div className="bg-white rounded-lg shadow-sm p-8">
             <p className="text-lg text-gray-700 leading-relaxed mb-4">
-              StorageOwnerAdvisor exists to simplify how storage facility owners
-              find and evaluate service providers. Running a storage facility
-              requires partnerships with numerous vendors—from property
-              management platforms to climate control systems, security
-              solutions, and more.
+              Self-storage facility owners depend on dozens of outside vendors to keep
+              their facilities running &mdash; management software, security systems,
+              insurance, climate control, doors, payment processing, marketing, and
+              more. Researching each one is time-consuming, and most operators end up
+              choosing vendors based on word-of-mouth or whoever calls first.
             </p>
             <p className="text-lg text-gray-700 leading-relaxed">
-              We've built this directory to save you time and effort by
-              curating a vetted list of trusted vendors across all major
-              service categories. No more endless Googling, cold calling, or
-              guessing whether a vendor will deliver on their promises.
+              StorageOwnerAdvisor is an independent research site that profiles and
+              compares those vendors. We do the legwork so storage owners can make
+              faster, better-informed decisions about who they hire.
             </p>
           </div>
         </section>
 
-        {/* What We Do */}
+        {/* Editorial Team */}
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            What We Offer
+            Our Editorial Team
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                Curated Vendor Directory
-              </h3>
-              <p className="text-gray-700">
-                Browse vendors organized by service category. From security
-                systems to tenant screening, find solutions tailored to storage
-                facility operations.
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                Detailed Profiles
-              </h3>
-              <p className="text-gray-700">
-                View pricing, features, contact info, and customer reviews for
-                each vendor. Make informed decisions based on comprehensive
-                information.
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                Vendor Ratings
-              </h3>
-              <p className="text-gray-700">
-                See ratings and reviews from other storage facility owners. Learn
-                from real customer experiences with each vendor.
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                Easy Search
-              </h3>
-              <p className="text-gray-700">
-                Quickly find vendors by name, category, or service type. Get
-                exactly what you're looking for in seconds.
-              </p>
-            </div>
+          <div className="bg-white rounded-lg shadow-sm p-8">
+            <p className="text-lg text-gray-700 leading-relaxed mb-4">
+              StorageOwnerAdvisor is run by a small editorial team focused full-time
+              on the self-storage vendor landscape. We are not a self-storage
+              operator, and we don&apos;t pretend to be. We are independent researchers
+              who track this industry the way an analyst would: by reading trade
+              publications, talking to vendors, monitoring operator forums, and
+              testing products where we can.
+            </p>
+            <p className="text-lg text-gray-700 leading-relaxed">
+              Our blog posts and vendor reviews are published under the
+              StorageOwnerAdvisor Editorial Team byline. When subject-matter experts
+              contribute (operators, attorneys, consultants), we credit them by
+              name on the article.
+            </p>
           </div>
         </section>
 
-        {/* Vetting Process */}
+        {/* Scope */}
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            Our Vetting Process
+            What We Cover
           </h2>
           <div className="bg-white rounded-lg shadow-sm p-8">
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Every vendor in our directory is vetted to ensure quality and
-              reliability:
+              We currently track <strong>just under 1,000 vendors</strong> across these 12 categories
+              serving the self-storage industry:
             </p>
-            <ul className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {[
+                ['Management Software', 'management-software'],
+                ['Insurance', 'insurance'],
+                ['Security Systems', 'security-systems'],
+                ['Climate Control & HVAC', 'climate-control-hvac'],
+                ['Doors & Hardware', 'doors-hardware'],
+                ['Payment Processing', 'payment-processing'],
+                ['Marketing & Web', 'marketing-web'],
+                ['Cleaning & Maintenance', 'cleaning-maintenance'],
+                ['Moving Supplies', 'moving-supplies'],
+                ['Construction & Building', 'construction-building'],
+                ['Signage & Lighting', 'signage-lighting'],
+                ['Consulting & Brokerage', 'consulting-brokerage'],
+              ].map(([name, slug]) => (
+                <Link
+                  key={slug}
+                  href={`/category/${slug}`}
+                  className="px-4 py-3 bg-gray-50 hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-gray-800 hover:text-blue-700 font-medium transition-colors text-sm"
+                >
+                  {name}
+                </Link>
+              ))}
+            </div>
+            <p className="text-gray-600 leading-relaxed mt-6 text-sm">
+              We add new vendors and categories on an ongoing basis as the
+              industry evolves.
+            </p>
+          </div>
+        </section>
+
+        {/* Methodology */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            How We Evaluate Vendors
+          </h2>
+          <div className="bg-white rounded-lg shadow-sm p-8">
+            <p className="text-lg text-gray-700 leading-relaxed mb-6">
+              Every vendor profile on StorageOwnerAdvisor is built using the same
+              process:
+            </p>
+            <ul className="space-y-5">
               <li className="flex items-start gap-4">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                  ✓
+                <span className="flex-shrink-0 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  1
                 </span>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">
-                    Business Verification
+                    Verification
                   </h4>
                   <p className="text-gray-700">
-                    We verify that companies are legitimate, established
-                    businesses in good standing.
+                    We confirm the company is an active business with a working
+                    website, contact information, and an established footprint
+                    serving self-storage operators.
                   </p>
                 </div>
               </li>
               <li className="flex items-start gap-4">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                  ✓
+                <span className="flex-shrink-0 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  2
                 </span>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">
-                    Storage Industry Experience
+                    Profile research
                   </h4>
                   <p className="text-gray-700">
-                    We prioritize vendors with proven experience serving storage
-                    facilities.
+                    We compile pricing, features, integrations, service area,
+                    headquarters, year founded, and other facts from the
+                    vendor&apos;s own materials and public sources.
                   </p>
                 </div>
               </li>
               <li className="flex items-start gap-4">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                  ✓
+                <span className="flex-shrink-0 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  3
                 </span>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">
-                    Customer Reviews
+                    Editorial rating
                   </h4>
                   <p className="text-gray-700">
-                    We collect and display genuine feedback from storage facility
-                    owners who have used these services.
+                    Our editors assign an internal rating based on transparency,
+                    feature depth, customer support reputation, and fit for the
+                    self-storage use case.
                   </p>
                 </div>
               </li>
               <li className="flex items-start gap-4">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                  ✓
+                <span className="flex-shrink-0 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  4
                 </span>
                 <div>
                   <h4 className="font-bold text-gray-900 mb-1">
-                    Ongoing Monitoring
+                    Operator feedback
                   </h4>
                   <p className="text-gray-700">
-                    We regularly review and update vendor information to ensure
-                    accuracy and quality.
+                    Storage facility owners can leave reviews and ratings, which
+                    we display alongside the editorial assessment. We moderate
+                    submissions to remove spam but do not edit substance.
+                  </p>
+                </div>
+              </li>
+              <li className="flex items-start gap-4">
+                <span className="flex-shrink-0 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  5
+                </span>
+                <div>
+                  <h4 className="font-bold text-gray-900 mb-1">
+                    Ongoing updates
+                  </h4>
+                  <p className="text-gray-700">
+                    Vendor information drifts. We re-check listings on a rolling
+                    schedule and accept corrections from vendors and operators.
                   </p>
                 </div>
               </li>
@@ -159,43 +192,100 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Why Trust Us */}
+        {/* Editorial Independence */}
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            Why Storage Owners Trust StorageOwnerAdvisor
+            Editorial Independence &amp; How We Make Money
+          </h2>
+          <div className="bg-white rounded-lg shadow-sm p-8 space-y-4">
+            <p className="text-lg text-gray-700 leading-relaxed">
+              We believe operators deserve to know exactly how a review site is
+              funded. Here&apos;s ours:
+            </p>
+            <ul className="list-disc list-outside pl-6 space-y-2 text-gray-700">
+              <li>
+                <strong>Affiliate links.</strong> Some outbound vendor links earn
+                StorageOwnerAdvisor a commission if you sign up. This never
+                affects our editorial rating, and we list vendors that don&apos;t
+                pay us alongside vendors that do.
+              </li>
+              <li>
+                <strong>Premium placement.</strong> Vendors can pay for a
+                &ldquo;Featured&rdquo; or &ldquo;Premium&rdquo; placement on
+                category pages. Paid placements are visually distinguished by
+                tier badges and do not change a vendor&apos;s editorial rating
+                or what we say about them.
+              </li>
+              <li>
+                <strong>Display advertising.</strong> We may serve display ads
+                on blog and informational pages. Vendor profile and comparison
+                pages remain ad-free.
+              </li>
+            </ul>
+            <p className="text-lg text-gray-700 leading-relaxed">
+              We do not let vendors review or approve their own listings before
+              publication, and no vendor pays to be removed from the directory.
+              For full details, see our{' '}
+              <Link href="/affiliate-disclosure" className="text-blue-600 hover:text-blue-700 font-medium underline">
+                affiliate disclosure
+              </Link>
+              .
+            </p>
+          </div>
+        </section>
+
+        {/* Sources */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            Our Sources
           </h2>
           <div className="bg-white rounded-lg shadow-sm p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <p className="text-4xl font-bold text-blue-600 mb-2">100+</p>
-                <p className="text-gray-700">
-                  Vetted vendors across major service categories
-                </p>
-              </div>
-              <div>
-                <p className="text-4xl font-bold text-blue-600 mb-2">50K+</p>
-                <p className="text-gray-700">
-                  Storage facility owners using our directory monthly
-                </p>
-              </div>
-              <div>
-                <p className="text-4xl font-bold text-blue-600 mb-2">4.7★</p>
-                <p className="text-gray-700">
-                  Average rating from facility owner reviews
-                </p>
-              </div>
-            </div>
+            <p className="text-lg text-gray-700 leading-relaxed mb-4">
+              When we research vendors and write blog posts, we draw on:
+            </p>
+            <ul className="list-disc list-outside pl-6 space-y-2 text-gray-700">
+              <li>Trade publications including <em>Inside Self-Storage</em> and the <em>Self-Storage Association</em></li>
+              <li>Vendor websites, datasheets, pricing pages, and SEC filings (where applicable)</li>
+              <li>Public storage operator forums, review platforms, and BBB records</li>
+              <li>Direct conversations with vendors and self-storage operators</li>
+              <li>State statutes and government databases for legal and compliance topics</li>
+            </ul>
+          </div>
+        </section>
+
+        {/* Corrections */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            Corrections &amp; Contact
+          </h2>
+          <div className="bg-white rounded-lg shadow-sm p-8">
+            <p className="text-lg text-gray-700 leading-relaxed mb-4">
+              We try hard to get things right, but mistakes happen. If you spot
+              an error in a vendor profile or blog post, please email{' '}
+              <a href="mailto:support@storageowneradvisor.com" className="text-blue-600 hover:text-blue-700 font-medium">
+                support@storageowneradvisor.com
+              </a>{' '}
+              and we&apos;ll review and correct it promptly.
+            </p>
+            <p className="text-lg text-gray-700 leading-relaxed">
+              Vendors who want to update their listing can reach us at the same
+              address or use our{' '}
+              <Link href="/submit" className="text-blue-600 hover:text-blue-700 font-medium underline">
+                vendor submission form
+              </Link>
+              .
+            </p>
           </div>
         </section>
 
         {/* CTA Section */}
         <section className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg p-8 text-white text-center">
           <h2 className="text-3xl font-bold mb-4">
-            Ready to Find the Right Vendors?
+            Browse Our Vendor Directory
           </h2>
           <p className="text-lg mb-8 opacity-90">
-            Browse our directory of trusted service providers for your storage
-            facility.
+            Independent research on management software, insurance, security,
+            and the other vendors that keep self-storage facilities running.
           </p>
           <Link
             href="/"
@@ -211,8 +301,7 @@ export default function AboutPage() {
             Are You a Vendor?
           </h2>
           <p className="text-gray-700 mb-6">
-            Get listed on StorageOwnerAdvisor and reach thousands of storage
-            facility owners looking for your solutions.
+            Submit your company for review and inclusion in our directory.
           </p>
           <Link
             href="/submit"
