@@ -35,6 +35,10 @@ interface Claim {
   contact_email: string;
   contact_phone: string | null;
   job_title: string | null;
+  relationship: string | null;
+  vendor_website: string | null;
+  linkedin_url: string | null;
+  attestation_accepted: boolean | null;
   message: string | null;
   status: 'pending' | 'approved' | 'rejected';
   submitted_at: string;
@@ -146,6 +150,7 @@ export default function AdminPage() {
     state: '',
     city: '',
     serviceArea: '',
+    tier: '',
     showInactive: true,
   });
   const [togglingVendorId, setTogglingVendorId] = useState<number | null>(null);
@@ -1113,13 +1118,34 @@ export default function AdminPage() {
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
                               <div><span className="font-medium">Contact:</span> {claim.contact_name}</div>
+                              <div><span className="font-medium">Relationship:</span> {claim.relationship || 'Not provided'}</div>
                               <div><span className="font-medium">Job Title:</span> {claim.job_title || 'Not provided'}</div>
                               <div><span className="font-medium">Email:</span>{' '}
                                 <a href={`mailto:${claim.contact_email}`} className="text-blue-600 hover:underline">{claim.contact_email}</a>
                               </div>
                               <div><span className="font-medium">Phone:</span> {claim.contact_phone || 'Not provided'}</div>
                               <div><span className="font-medium">Vendor Slug:</span> {claim.vendor_slug}</div>
+                              {claim.vendor_website && (
+                                <div className="sm:col-span-2"><span className="font-medium">Company Website:</span>{' '}
+                                  <a href={claim.vendor_website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all">{claim.vendor_website}</a>
+                                </div>
+                              )}
                             </div>
+                            {claim.linkedin_url && (
+                              <div className="mt-3 bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
+                                <div className="font-semibold text-blue-900 mb-1">Verification</div>
+                                <div className="text-blue-800">
+                                  <span className="font-medium">LinkedIn:</span>{' '}
+                                  <a href={claim.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:underline break-all">
+                                    {claim.linkedin_url}
+                                  </a>
+                                </div>
+                                <div className="text-blue-800 mt-1">
+                                  <span className="font-medium">Attestation:</span>{' '}
+                                  {claim.attestation_accepted ? '✓ Accepted' : '✗ Not accepted'}
+                                </div>
+                              </div>
+                            )}
                             {claim.message && (
                               <p className="mt-2 text-sm text-gray-600">
                                 <span className="font-medium">Message:</span> {claim.message}
@@ -1815,6 +1841,7 @@ export default function AdminPage() {
                 if (vendorFilters.state && v.state !== vendorFilters.state) return false;
                 if (vendorFilters.city && v.city !== vendorFilters.city) return false;
                 if (vendorFilters.serviceArea && v.service_area !== vendorFilters.serviceArea) return false;
+                if (vendorFilters.tier && v.tier !== vendorFilters.tier) return false;
                 if (q && !v.name.toLowerCase().includes(q)) return false;
                 return true;
               });
@@ -1841,7 +1868,7 @@ export default function AdminPage() {
 
                   {/* Filter bar */}
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3">
                       <div className="lg:col-span-2">
                         <label className="block text-xs font-medium text-gray-600 mb-1">Search name</label>
                         <input
@@ -1904,6 +1931,19 @@ export default function AdminPage() {
                           <option value="local">Local</option>
                         </select>
                       </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Tier</label>
+                        <select
+                          value={vendorFilters.tier}
+                          onChange={e => setVendorFilters({ ...vendorFilters, tier: e.target.value })}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">All</option>
+                          <option value="free">Free</option>
+                          <option value="premium">Premium</option>
+                          <option value="featured">Featured</option>
+                        </select>
+                      </div>
                     </div>
 
                     <div className="mt-3 flex items-center justify-between">
@@ -1920,9 +1960,9 @@ export default function AdminPage() {
                         <span className="text-sm text-gray-500">
                           Showing {filtered.length} of {vendors.length}
                         </span>
-                        {(vendorFilters.query || vendorFilters.category || vendorFilters.state || vendorFilters.city || vendorFilters.serviceArea) && (
+                        {(vendorFilters.query || vendorFilters.category || vendorFilters.state || vendorFilters.city || vendorFilters.serviceArea || vendorFilters.tier) && (
                           <button
-                            onClick={() => setVendorFilters({ query: '', category: '', state: '', city: '', serviceArea: '', showInactive: vendorFilters.showInactive })}
+                            onClick={() => setVendorFilters({ query: '', category: '', state: '', city: '', serviceArea: '', tier: '', showInactive: vendorFilters.showInactive })}
                             className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                           >
                             Clear filters

@@ -13,6 +13,15 @@ interface ClaimListingProps {
   vendorName: string;
 }
 
+const RELATIONSHIP_OPTIONS = [
+  'Owner',
+  'Officer / Executive',
+  'Manager',
+  'Marketing',
+  'Authorized Agent',
+  'Other',
+];
+
 export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,19 +32,38 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
     contactEmail: '',
     contactPhone: '',
     jobTitle: '',
+    relationship: '',
+    vendorWebsite: '',
+    linkedinUrl: '',
+    attestationAccepted: false,
     message: '',
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
     if (error) setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.attestationAccepted) {
+      setError('Please confirm you are authorized to manage this listing.');
+      return;
+    }
+
+    if (!/^https?:\/\/(www\.)?linkedin\.com\//i.test(formData.linkedinUrl.trim())) {
+      setError('Please provide a valid LinkedIn profile URL (https://www.linkedin.com/...).');
+      return;
+    }
+
     setIsSubmitting(true);
     setError('');
 
@@ -48,6 +76,10 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
         contact_email: formData.contactEmail,
         contact_phone: formData.contactPhone || null,
         job_title: formData.jobTitle || null,
+        relationship: formData.relationship,
+        vendor_website: formData.vendorWebsite || null,
+        linkedin_url: formData.linkedinUrl.trim(),
+        attestation_accepted: formData.attestationAccepted,
         message: formData.message || null,
       });
 
@@ -59,7 +91,6 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
       return;
     }
 
-    // Send email notification (don't block on failure)
     fetch('/api/notify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -72,6 +103,10 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
           contactEmail: formData.contactEmail,
           contactPhone: formData.contactPhone,
           jobTitle: formData.jobTitle,
+          relationship: formData.relationship,
+          vendorWebsite: formData.vendorWebsite,
+          linkedinUrl: formData.linkedinUrl,
+          attestationAccepted: formData.attestationAccepted,
           message: formData.message,
         },
       }),
@@ -147,6 +182,9 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             placeholder="jane@company.com"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            Use an email at the company&apos;s domain (e.g. jane@yourcompany.com) — claims with personal email addresses take longer to verify.
+          </p>
         </div>
         <div>
           <label htmlFor="contactPhone" className="block text-sm font-semibold text-gray-700 mb-1">
@@ -171,6 +209,46 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
           />
         </div>
         <div>
+          <label htmlFor="relationship" className="block text-sm font-semibold text-gray-700 mb-1">
+            Your Relationship to the Business *
+          </label>
+          <select
+            id="relationship" name="relationship"
+            value={formData.relationship} onChange={handleChange} required
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+          >
+            <option value="">Select one...</option>
+            {RELATIONSHIP_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="vendorWebsite" className="block text-sm font-semibold text-gray-700 mb-1">
+            Company Website
+          </label>
+          <input
+            type="url" id="vendorWebsite" name="vendorWebsite"
+            value={formData.vendorWebsite} onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            placeholder="https://yourcompany.com"
+          />
+        </div>
+        <div>
+          <label htmlFor="linkedinUrl" className="block text-sm font-semibold text-gray-700 mb-1">
+            Your LinkedIn Profile URL *
+          </label>
+          <input
+            type="url" id="linkedinUrl" name="linkedinUrl"
+            value={formData.linkedinUrl} onChange={handleChange} required
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            placeholder="https://www.linkedin.com/in/your-name"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Used to verify your role at the company. Profile must list current employment at <strong>{vendorName}</strong>.
+          </p>
+        </div>
+        <div>
           <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-1">
             Message (optional)
           </label>
@@ -180,6 +258,18 @@ export default function ClaimListing({ vendorSlug, vendorName }: ClaimListingPro
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             placeholder="Any additional info to help us verify your ownership..."
           />
+        </div>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+          <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
+            <input
+              type="checkbox" name="attestationAccepted"
+              checked={formData.attestationAccepted} onChange={handleChange} required
+              className="mt-0.5 rounded border-gray-300"
+            />
+            <span>
+              I confirm I am authorized to manage this listing on behalf of <strong>{vendorName}</strong>. I understand that submitting a false claim may result in removal of the listing and possible legal action. *
+            </span>
+          </label>
         </div>
 
         {error && (

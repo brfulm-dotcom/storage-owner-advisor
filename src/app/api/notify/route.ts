@@ -43,10 +43,14 @@ export async function POST(request: NextRequest) {
             <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${data.contactEmail}">${data.contactEmail}</a></td></tr>
             <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Phone</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${data.contactPhone || 'Not provided'}</td></tr>
             <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Job Title</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${data.jobTitle || 'Not provided'}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Relationship</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${data.relationship || 'Not provided'}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Company Website</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${data.vendorWebsite ? `<a href="${data.vendorWebsite}">${data.vendorWebsite}</a>` : 'Not provided'}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">LinkedIn</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${data.linkedinUrl ? `<a href="${data.linkedinUrl}">${data.linkedinUrl}</a>` : 'Not provided'}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Attestation</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${data.attestationAccepted ? '✓ Accepted' : '✗ Not accepted'}</td></tr>
             <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Message</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${data.message || 'No message'}</td></tr>
           </table>
           <p style="margin-top: 20px; color: #666; font-size: 14px;">
-            Log in to <a href="https://supabase.com/dashboard">Supabase</a> to review this claim.
+            Review in the <a href="https://storageowneradvisor.com/admin">admin dashboard</a> or <a href="https://supabase.com/dashboard">Supabase</a>.
           </p>
         `;
         break;
