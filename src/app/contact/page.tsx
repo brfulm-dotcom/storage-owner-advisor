@@ -263,7 +263,7 @@ export default function ContactPage() {
               <ul className="space-y-2 text-sm">
                 <li>
                   <a
-                    href="#"
+                    href="/"
                     className="text-blue-600 hover:text-blue-700 font-semibold"
                   >
                     Browse vendor directory

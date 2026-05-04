@@ -50,7 +50,7 @@ export default function HeroSection({ vendorCount, categoryCount }: HeroSectionP
 
         {/* Subheadline */}
         <p className="text-sm sm:text-base text-blue-100 text-center mb-4 max-w-2xl mx-auto">
-          The leading directory of vetted service providers, equipment suppliers, and technology partners for self-storage owners and operators.
+          An independent directory of vetted service providers, equipment suppliers, and technology partners for self-storage owners and operators.
         </p>
 
         {/* Search Bar */}
