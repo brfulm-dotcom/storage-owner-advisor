@@ -1,4 +1,5 @@
 import HeroSection from '@/components/HeroSection';
+import HomeIntro from '@/components/HomeIntro';
 import CategoryGrid from '@/components/CategoryGrid';
 import FeaturedVendors from '@/components/FeaturedVendors';
 import LatestBlogPosts from '@/components/LatestBlogPosts';
@@ -29,6 +30,7 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
       />
       <HeroSection vendorCount={vendorCount} categoryCount={visibleCategoryCount} />
+      <HomeIntro />
       <AdSlot slot="home-top" format="auto" />
       <FeaturedVendors />
       <AdSlot slot="home-mid" format="auto" layout="in-article" />
