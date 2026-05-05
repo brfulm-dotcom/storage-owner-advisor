@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import VendorCard from '@/components/VendorCard';
+import PageHero from '@/components/PageHero';
 import type { Vendor, Category } from '@/lib/supabase';
 import { SORT_OPTIONS, sortVendors } from '@/components/SortableVendorGrid';
 import type { SortOption } from '@/components/SortableVendorGrid';
@@ -146,13 +147,14 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <PageHero
+        title="Search Vendors"
+        subtitle="Find storage industry vendors by name, category, location, or service area."
+      />
+
       {/* Search Header */}
       <div className="bg-white border-b border-gray-200 py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-            Search Vendors
-          </h1>
-
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="flex gap-2 max-w-2xl mb-6">
             <input
