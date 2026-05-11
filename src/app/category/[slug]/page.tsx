@@ -167,8 +167,40 @@ export default async function CategoryPage(props: CategoryPageProps) {
         </div>
       )}
 
+      {/* On-page anchor nav */}
+      {(category.buyer_guide || faqs.length > 0) && (
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="flex items-center gap-2 sm:gap-3 py-3 overflow-x-auto">
+              <a
+                href="#vendors"
+                className="whitespace-nowrap text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-full transition-colors"
+              >
+                Vendors
+              </a>
+              {category.buyer_guide && (
+                <a
+                  href="#buyer-guide"
+                  className="whitespace-nowrap text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-full transition-colors"
+                >
+                  Buyer's Guide
+                </a>
+              )}
+              {faqs.length > 0 && (
+                <a
+                  href="#faq"
+                  className="whitespace-nowrap text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-4 py-1.5 rounded-full transition-colors"
+                >
+                  FAQ
+                </a>
+              )}
+            </nav>
+          </div>
+        </div>
+      )}
+
       {/* Vendors Grid */}
-      <div className="py-12 px-4 sm:px-6 lg:px-8">
+      <div id="vendors" className="py-12 px-4 sm:px-6 lg:px-8 scroll-mt-20">
         <div className="max-w-7xl mx-auto">
           {vendors.length > 0 && (
             <p className="text-xs text-gray-500 mb-6">
@@ -198,7 +230,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
 
       {/* Buyer's Guide */}
       {category.buyer_guide && (
-        <div className="bg-white border-t border-gray-200 py-12 px-4 sm:px-6 lg:px-8">
+        <div id="buyer-guide" className="bg-white border-t border-gray-200 py-12 px-4 sm:px-6 lg:px-8 scroll-mt-20">
           <div className="max-w-4xl mx-auto">
             <div
               className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-li:text-gray-700 prose-strong:text-gray-900"
@@ -210,7 +242,7 @@ export default async function CategoryPage(props: CategoryPageProps) {
 
       {/* Category FAQs */}
       {faqs.length > 0 && (
-        <div className="bg-gray-50 border-t border-gray-200 py-12 px-4 sm:px-6 lg:px-8">
+        <div id="faq" className="bg-gray-50 border-t border-gray-200 py-12 px-4 sm:px-6 lg:px-8 scroll-mt-20">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-gray-900 mb-8">
               Frequently asked questions about {category.name.toLowerCase()}
