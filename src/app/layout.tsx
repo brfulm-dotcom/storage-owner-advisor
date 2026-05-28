@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.storageowneradvisor.com'),
-  title: 'StorageOwnerAdvisor - Find Trusted Vendors for Your Storage Facility',
+  title: 'StorageOwnerAdvisor | Find Trusted Vendors for Your Self-Storage Facility',
   description:
     'Find vetted vendors for self-storage facilities. Compare top-rated providers for security, climate control, management software, insurance, and more.',
   keywords: [
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'StorageOwnerAdvisor - Find Trusted Vendors',
+    title: 'StorageOwnerAdvisor | Find Trusted Vendors',
     description: 'Discover vetted vendors trusted by storage facility owners.',
     type: 'website',
     url: 'https://www.storageowneradvisor.com',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'StorageOwnerAdvisor - Find Trusted Vendors',
+    title: 'StorageOwnerAdvisor | Find Trusted Vendors',
     description: 'Discover vetted vendors trusted by storage facility owners.',
     images: ['/og-image.png'],
   },
