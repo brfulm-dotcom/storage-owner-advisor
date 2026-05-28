@@ -213,6 +213,16 @@ export default function PremiumPage() {
               Email Us Directly
             </a>
           </div>
+          <p className="mt-6 text-sm text-gray-600">
+            Looking for quick answers about how listings, claims, or premium
+            placement work?{' '}
+            <Link
+              href="/faq#for-vendors"
+              className="text-blue-600 hover:text-blue-700 font-semibold"
+            >
+              Read the For Vendors FAQ →
+            </Link>
+          </p>
         </div>
       </div>
     </div>

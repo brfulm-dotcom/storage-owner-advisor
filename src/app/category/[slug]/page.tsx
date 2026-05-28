@@ -260,6 +260,35 @@ export default async function CategoryPage(props: CategoryPageProps) {
                 </div>
               ))}
             </div>
+
+            {/* Deep-link to the sitewide FAQ */}
+            <div className="mt-8 text-center">
+              <Link
+                href="/faq#self-storage-industry"
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                More questions about self-storage operations? Read the full FAQ
+                <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* General FAQ CTA when this category has no FAQs of its own */}
+      {faqs.length === 0 && vendors.length > 0 && (
+        <div className="bg-gray-50 border-t border-gray-200 py-10 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <p className="text-gray-700">
+              Have questions about self-storage operations, software, or
+              vendors?{' '}
+              <Link
+                href="/faq"
+                className="text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                Read our complete self-storage FAQ →
+              </Link>
+            </p>
           </div>
         </div>
       )}

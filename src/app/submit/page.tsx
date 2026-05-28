@@ -332,7 +332,7 @@ export default function SubmitPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-8">
+            <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Why Get Listed?</h3>
               <ul className="space-y-3 text-sm text-gray-700">
                 <li className="flex items-start gap-2">
@@ -352,6 +352,21 @@ export default function SubmitPage() {
                   <span>Increase visibility and inbound inquiries from decision makers</span>
                 </li>
               </ul>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h3 className="text-base font-bold text-gray-900 mb-2">
+                Questions about getting listed?
+              </h3>
+              <p className="text-sm text-gray-700 mb-3">
+                How submissions are reviewed, how to claim an existing listing,
+                and what premium upgrades include.
+              </p>
+              <Link
+                href="/faq#for-vendors"
+                className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
+              >
+                Read the For Vendors FAQ →
+              </Link>
             </div>
           </div>
         </div>
