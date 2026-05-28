@@ -3,7 +3,7 @@ import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 
 export const metadata: Metadata = {
-  title: 'Affiliate Disclosure - StorageOwnerAdvisor',
+  title: 'Affiliate Disclosure | StorageOwnerAdvisor',
   description:
     'Learn how StorageOwnerAdvisor uses affiliate links to support our free directory helping self-storage facility owners find trusted vendors and tools.',
 };

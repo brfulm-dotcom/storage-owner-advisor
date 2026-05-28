@@ -36,13 +36,13 @@ export async function generateMetadata(
   }
 
   return {
-    title: `${vendor.name} - StorageOwnerAdvisor`,
+    title: `${vendor.name} | StorageOwnerAdvisor`,
     description: vendor.short_description,
     alternates: {
       canonical: `https://www.storageowneradvisor.com/vendor/${params.slug}`,
     },
     openGraph: {
-      title: `${vendor.name} - StorageOwnerAdvisor`,
+      title: `${vendor.name} | StorageOwnerAdvisor`,
       description: vendor.short_description,
       type: 'website',
     },

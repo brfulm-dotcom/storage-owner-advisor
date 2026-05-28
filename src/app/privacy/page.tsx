@@ -3,7 +3,7 @@ import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy - StorageOwnerAdvisor',
+  title: 'Privacy Policy | StorageOwnerAdvisor',
   description:
     'Read the StorageOwnerAdvisor privacy policy. Learn how we collect, use, and protect your personal information when browsing our vendor directory.',
   alternates: {

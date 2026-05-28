@@ -3,7 +3,7 @@ import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 
 export const metadata: Metadata = {
-  title: 'Premium Listings - StorageOwnerAdvisor',
+  title: 'Premium Listings | StorageOwnerAdvisor',
   description:
     'Boost your visibility with a premium vendor listing on StorageOwnerAdvisor. Featured placement, priority search ranking, and enhanced profiles for vendors.',
   alternates: {

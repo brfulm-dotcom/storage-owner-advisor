@@ -3,7 +3,7 @@ import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service - StorageOwnerAdvisor',
+  title: 'Terms of Service | StorageOwnerAdvisor',
   description:
     'Read the terms and conditions for using StorageOwnerAdvisor — our self-storage vendor directory for facility owners, operators, and service providers.',
   alternates: {

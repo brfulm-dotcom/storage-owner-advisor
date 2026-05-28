@@ -25,7 +25,7 @@ export async function generateMetadata(props: BlogPostPageProps): Promise<Metada
   }
 
   return {
-    title: `${post.title} - StorageOwnerAdvisor Blog`,
+    title: `${post.title} | StorageOwnerAdvisor Blog`,
     description: post.meta_description || post.excerpt,
     alternates: {
       canonical: `https://www.storageowneradvisor.com/blog/${params.slug}`,

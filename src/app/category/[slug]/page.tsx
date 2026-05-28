@@ -33,13 +33,13 @@ export async function generateMetadata(
   }
 
   return {
-    title: `${category.name} Vendors - StorageOwnerAdvisor`,
+    title: `${category.name} Vendors | StorageOwnerAdvisor`,
     description: `Find trusted ${category.name} vendors for your storage facility. Compare reviews and features from top-rated providers.`,
     alternates: {
       canonical: `https://www.storageowneradvisor.com/category/${params.slug}`,
     },
     openGraph: {
-      title: `${category.name} Vendors - StorageOwnerAdvisor`,
+      title: `${category.name} Vendors | StorageOwnerAdvisor`,
       description: `Find trusted ${category.name} vendors for your storage facility.`,
       type: 'website',
     },
