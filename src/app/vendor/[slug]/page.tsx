@@ -164,7 +164,7 @@ export default async function VendorPage(props: VendorPageProps) {
                     {vendor.logo && (
                       <img
                         src={vendor.logo}
-                        alt={`${vendor.name} logo`}
+                        alt={`${vendor.name} logo, ${category?.name || 'storage'} vendor for self-storage facilities`}
                         className="w-16 h-16 rounded-lg object-contain border border-gray-200 flex-shrink-0"
                       />
                     )}
@@ -313,7 +313,7 @@ export default async function VendorPage(props: VendorPageProps) {
                       <a key={i} href={url} target="_blank" rel="noopener noreferrer">
                         <img
                           src={url}
-                          alt={`${vendor.name} screenshot ${i + 1}`}
+                          alt={`${vendor.name} ${category?.name || 'software'} interface screenshot ${i + 1}`}
                           className="w-full rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
                         />
                       </a>

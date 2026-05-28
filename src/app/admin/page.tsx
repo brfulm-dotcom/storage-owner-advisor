@@ -77,6 +77,7 @@ interface BlogPost {
   category_slug: string | null;
   author: string;
   featured_image: string | null;
+  featured_image_alt: string | null;
   meta_description: string | null;
   status: 'draft' | 'published';
   published_at: string | null;
@@ -187,6 +188,7 @@ export default function AdminPage() {
     category_slug: '',
     author: 'StorageOwnerAdvisor Team',
     featured_image: '',
+    featured_image_alt: '',
     meta_description: '',
     status: 'draft' as 'draft' | 'published',
   });
@@ -594,6 +596,7 @@ export default function AdminPage() {
       category_slug: '',
       author: 'StorageOwnerAdvisor Team',
       featured_image: '',
+      featured_image_alt: '',
       meta_description: '',
       status: 'draft',
     });
@@ -611,6 +614,7 @@ export default function AdminPage() {
       category_slug: post.category_slug || '',
       author: post.author,
       featured_image: post.featured_image || '',
+      featured_image_alt: post.featured_image_alt || '',
       meta_description: post.meta_description || '',
       status: post.status,
     });
@@ -657,6 +661,7 @@ export default function AdminPage() {
           ...postForm,
           category_slug: postForm.category_slug || null,
           featured_image: postForm.featured_image || null,
+          featured_image_alt: postForm.featured_image_alt || null,
           meta_description: postForm.meta_description || null,
           published_at: postForm.status === 'published' && !editingPost.published_at
             ? new Date().toISOString()
@@ -670,6 +675,7 @@ export default function AdminPage() {
           ...postForm,
           category_slug: postForm.category_slug || null,
           featured_image: postForm.featured_image || null,
+          featured_image_alt: postForm.featured_image_alt || null,
           meta_description: postForm.meta_description || null,
           published_at: postForm.status === 'published' ? new Date().toISOString() : null,
         });
@@ -1546,6 +1552,24 @@ export default function AdminPage() {
                             </span>
                           </label>
                         )}
+                      </div>
+
+                      {/* Featured Image Alt Text */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Featured Image Alt Text <span className="text-gray-400 font-normal">— describes the image for screen readers and Google Images SEO</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={postForm.featured_image_alt}
+                          onChange={(e) => setPostForm(prev => ({ ...prev, featured_image_alt: e.target.value }))}
+                          maxLength={125}
+                          className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="e.g. Self-storage facility owner reviewing software on a laptop"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Leave blank to use the post title. Keep under 125 characters. Describe what is in the image, not the post topic.
+                        </p>
                       </div>
 
                       {/* Meta Description */}

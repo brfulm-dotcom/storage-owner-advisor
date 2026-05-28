@@ -51,6 +51,7 @@ export interface BlogPost {
   category_slug?: string | null;
   author: string;
   featured_image?: string | null;
+  featured_image_alt?: string | null;
   meta_description?: string | null;
   status: 'draft' | 'published';
   published_at?: string | null;

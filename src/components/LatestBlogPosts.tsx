@@ -42,7 +42,7 @@ export default async function LatestBlogPosts() {
                   <div className="relative aspect-[16/9] bg-gray-100 overflow-hidden">
                     <Image
                       src={post.featured_image}
-                      alt={post.title}
+                      alt={post.featured_image_alt || post.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"

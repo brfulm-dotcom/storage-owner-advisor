@@ -34,7 +34,7 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'StorageOwnerAdvisor - Find Trusted Vendors for Your Storage Facility',
+        alt: 'StorageOwnerAdvisor: find trusted vendors for your self-storage facility',
       },
     ],
   },

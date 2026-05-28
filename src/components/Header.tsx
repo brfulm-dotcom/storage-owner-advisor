@@ -24,7 +24,7 @@ export default function Header() {
           <Link href="/" className="flex items-center">
             <Image
               src="/logo.png"
-              alt="StorageOwnerAdvisor"
+              alt="StorageOwnerAdvisor logo, vendor directory for self-storage facility owners"
               width={480}
               height={96}
               className="h-20 w-auto"

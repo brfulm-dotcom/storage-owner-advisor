@@ -162,7 +162,7 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
           <div className="relative aspect-[16/9] rounded-xl overflow-hidden mb-8 bg-gray-100">
             <Image
               src={post.featured_image}
-              alt={post.title}
+              alt={post.featured_image_alt || post.title}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 768px"

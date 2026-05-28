@@ -432,7 +432,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (action === 'create_blog_post') {
-    const { title, slug, excerpt, content, category_slug, author, featured_image, meta_description, status: postStatus, published_at } = body;
+    const { title, slug, excerpt, content, category_slug, author, featured_image, featured_image_alt, meta_description, status: postStatus, published_at } = body;
 
     const { data, error } = await supabase
       .from('blog_posts')
@@ -444,6 +444,7 @@ export async function POST(request: NextRequest) {
         category_slug: category_slug || null,
         author: author || 'StorageOwnerAdvisor Team',
         featured_image: featured_image || null,
+        featured_image_alt: featured_image_alt || null,
         meta_description: meta_description || null,
         status: postStatus || 'draft',
         published_at: published_at || null,
