@@ -1500,7 +1500,7 @@ export default function AdminPage() {
                       {/* Featured Image */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Featured Image <span className="text-gray-400 font-normal">— shown on homepage and blog listing</span>
+                          Featured Image <span className="text-gray-400 font-normal">(shown on homepage and blog listing)</span>
                         </label>
                         {postForm.featured_image ? (
                           <div className="flex items-start gap-4">
@@ -1548,7 +1548,7 @@ export default function AdminPage() {
                               disabled={uploadingImage}
                             />
                             <span className="text-sm">
-                              {uploadingImage ? 'Uploading…' : 'Click to upload (JPG, PNG, WebP, GIF — max 4MB)'}
+                              {uploadingImage ? 'Uploading…' : 'Click to upload (JPG, PNG, WebP, GIF, max 4MB)'}
                             </span>
                           </label>
                         )}
@@ -1557,7 +1557,7 @@ export default function AdminPage() {
                       {/* Featured Image Alt Text */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Featured Image Alt Text <span className="text-gray-400 font-normal">— describes the image for screen readers and Google Images SEO</span>
+                          Featured Image Alt Text <span className="text-gray-400 font-normal">(describes the image for screen readers and Google Images SEO)</span>
                         </label>
                         <input
                           type="text"
@@ -1575,7 +1575,7 @@ export default function AdminPage() {
                       {/* Meta Description */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Meta Description (SEO) <span className="text-gray-400 font-normal">— {postForm.meta_description.length}/160</span>
+                          Meta Description (SEO) <span className="text-gray-400 font-normal">{postForm.meta_description.length}/160</span>
                         </label>
                         <input
                           type="text"
@@ -1737,7 +1737,7 @@ export default function AdminPage() {
                     Vendor Reviews ({vendorReviews.length})
                     {vendorReviews.filter(r => !r.approved).length > 0 && (
                       <span className="ml-2 text-sm font-normal text-orange-600">
-                        — {vendorReviews.filter(r => !r.approved).length} pending moderation
+                        {vendorReviews.filter(r => !r.approved).length} pending moderation
                       </span>
                     )}
                   </h2>
@@ -1879,7 +1879,7 @@ export default function AdminPage() {
                     <h2 className="text-lg font-semibold text-gray-900">
                       Vendors ({vendors.length})
                       <span className="ml-2 text-sm font-normal text-gray-500">
-                        — {activeCount} active, {inactiveCount} inactive
+                        {activeCount} active, {inactiveCount} inactive
                       </span>
                     </h2>
                     <button
