@@ -6,6 +6,7 @@ import {
   getUniqueStates,
   getUniqueCitiesByState,
 } from '@/lib/supabase';
+import { brandedTitle, clampDescription, clampTitle } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -40,15 +41,15 @@ export async function generateMetadata(props: StateOverviewProps): Promise<Metad
   const isThin = vendors.length < 3;
 
   return {
-    title: `Best Storage Facility Vendors in ${stateName} (${year}) | StorageOwnerAdvisor`,
-    description: `Find the best self-storage vendors in ${stateName}. Compare software, security, construction, insurance, and more for your storage facility.`,
+    title: brandedTitle(`Best Storage Vendors in ${stateName}`),
+    description: clampDescription(`Find the best self-storage vendors in ${stateName} (${year}). Compare software, security, construction, insurance, and more for your storage facility.`),
     alternates: {
       canonical: `https://www.storageowneradvisor.com/best/storage-vendors/${state}`,
     },
     robots: isThin ? { index: false, follow: true } : undefined,
     openGraph: {
-      title: `Best Storage Facility Vendors in ${stateName} (${year})`,
-      description: `Compare top storage facility vendors across all categories in ${stateName}.`,
+      title: clampTitle(`Best Storage Facility Vendors in ${stateName} (${year})`),
+      description: clampDescription(`Compare top storage facility vendors across all categories in ${stateName}.`),
       type: 'website',
     },
   };

@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.storageowneradvisor.com'),
-  title: 'StorageOwnerAdvisor | Find Trusted Vendors for Your Self-Storage Facility',
+  title: 'Self-Storage Vendor Directory | StorageOwnerAdvisor',
   description:
     'Find vetted vendors for self-storage facilities. Compare top-rated providers for security, climate control, management software, insurance, and more.',
   keywords: [

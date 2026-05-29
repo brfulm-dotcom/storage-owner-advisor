@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getCategoryBySlug, getVendorsByCategory, getCategorySlugs } from '@/lib/supabase';
 import SortableVendorGrid from '@/components/SortableVendorGrid';
-import { generateCategoryJsonLd, generateCategoryBreadcrumbJsonLd } from '@/lib/seo';
+import { generateCategoryJsonLd, generateCategoryBreadcrumbJsonLd, brandedTitle } from '@/lib/seo';
 
 // Revalidate hourly; admin actions trigger on-demand revalidation for instant updates
 export const revalidate = 3600;
@@ -33,13 +33,13 @@ export async function generateMetadata(
   }
 
   return {
-    title: `${category.name} Vendors | StorageOwnerAdvisor`,
+    title: brandedTitle(`${category.name} Vendors`),
     description: `Find trusted ${category.name} vendors for your storage facility. Compare reviews and features from top-rated providers.`,
     alternates: {
       canonical: `https://www.storageowneradvisor.com/category/${params.slug}`,
     },
     openGraph: {
-      title: `${category.name} Vendors | StorageOwnerAdvisor`,
+      title: brandedTitle(`${category.name} Vendors`),
       description: `Find trusted ${category.name} vendors for your storage facility.`,
       type: 'website',
     },

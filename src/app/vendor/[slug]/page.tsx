@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getVendorBySlug, getCategoryBySlug, getVendorSlugs, getRelatedVendors } from '@/lib/supabase';
 import StarRating from '@/components/StarRating';
 import ClaimListing from '@/components/ClaimListing';
-import { generateVendorJsonLd, generateVendorBreadcrumbJsonLd, generateLocalBusinessJsonLd } from '@/lib/seo';
+import { generateVendorJsonLd, generateVendorBreadcrumbJsonLd, generateLocalBusinessJsonLd, brandedTitle, clampDescription } from '@/lib/seo';
 import TrackedLink from '@/components/TrackedLink';
 import VendorReviews from '@/components/VendorReviews';
 import WriteReview from '@/components/WriteReview';
@@ -36,14 +36,14 @@ export async function generateMetadata(
   }
 
   return {
-    title: `${vendor.name} | StorageOwnerAdvisor`,
-    description: vendor.short_description,
+    title: brandedTitle(vendor.name),
+    description: clampDescription(vendor.short_description),
     alternates: {
       canonical: `https://www.storageowneradvisor.com/vendor/${params.slug}`,
     },
     openGraph: {
-      title: `${vendor.name} | StorageOwnerAdvisor`,
-      description: vendor.short_description,
+      title: brandedTitle(vendor.name),
+      description: clampDescription(vendor.short_description),
       type: 'website',
     },
   };

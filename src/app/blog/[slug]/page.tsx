@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getBlogPostBySlug, getBlogPostSlugs, getCategoryBySlug } from '@/lib/supabase';
+import { brandedTitle, clampDescription } from '@/lib/seo';
 import { notFound } from 'next/navigation';
 
 export const revalidate = 86400;
@@ -25,14 +26,14 @@ export async function generateMetadata(props: BlogPostPageProps): Promise<Metada
   }
 
   return {
-    title: `${post.title} | StorageOwnerAdvisor Blog`,
-    description: post.meta_description || post.excerpt,
+    title: brandedTitle(post.title),
+    description: clampDescription(post.meta_description || post.excerpt),
     alternates: {
       canonical: `https://www.storageowneradvisor.com/blog/${params.slug}`,
     },
     openGraph: {
       title: post.title,
-      description: post.meta_description || post.excerpt,
+      description: clampDescription(post.meta_description || post.excerpt),
       type: 'article',
       publishedTime: post.published_at || undefined,
       ...(post.featured_image ? { images: [post.featured_image] } : {}),

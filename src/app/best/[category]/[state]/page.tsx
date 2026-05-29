@@ -9,6 +9,7 @@ import {
   getUniqueCitiesByState,
 } from '@/lib/supabase';
 import VendorCard from '@/components/VendorCard';
+import { brandedTitle, clampDescription, clampTitle } from '@/lib/seo';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -73,15 +74,15 @@ export async function generateMetadata(props: SEOPageProps): Promise<Metadata> {
   const isThin = vendors.length < 3;
 
   return {
-    title: `Best ${categoryName} in ${stateName} (${year}) | StorageOwnerAdvisor`,
-    description: `Compare the top ${categoryName.toLowerCase()} providers in ${stateName}. Read reviews, compare features, and find the best solution for your storage facility.`,
+    title: brandedTitle(`Best ${categoryName} in ${stateName}`),
+    description: clampDescription(`Compare the top ${categoryName.toLowerCase()} providers in ${stateName} (${year}). Read reviews, compare features, and find the best solution for your storage facility.`),
     alternates: {
       canonical: `https://www.storageowneradvisor.com/best/${category}/${state}`,
     },
     robots: isThin ? { index: false, follow: true } : undefined,
     openGraph: {
-      title: `Best ${categoryName} in ${stateName} (${year})`,
-      description: `Find and compare the best ${categoryName.toLowerCase()} providers serving ${stateName} storage facilities.`,
+      title: clampTitle(`Best ${categoryName} in ${stateName} (${year})`),
+      description: clampDescription(`Find and compare the best ${categoryName.toLowerCase()} providers serving ${stateName} storage facilities.`),
       type: 'website',
     },
   };

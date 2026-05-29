@@ -7,6 +7,46 @@ import { Vendor, Category } from '@/lib/supabase';
 
 const BASE_URL = 'https://www.storageowneradvisor.com';
 
+/**
+ * Truncate a meta title at a word boundary so it fits Google's SERP display.
+ * Google shows about 580 pixels of title; 60 characters is a safe cap.
+ * If the input is already short enough, returns it unchanged.
+ * Otherwise trims to the last space before the limit and appends an ellipsis.
+ */
+export function clampTitle(text: string, max = 60): string {
+  if (!text) return text;
+  if (text.length <= max) return text;
+  const sliced = text.slice(0, max - 1);
+  const lastSpace = sliced.lastIndexOf(' ');
+  const base = lastSpace > max * 0.6 ? sliced.slice(0, lastSpace) : sliced;
+  return base.replace(/[,;:\s]+$/, '') + '…';
+}
+
+/**
+ * Build a meta title that always preserves the brand suffix, clamping only
+ * the variable prefix when needed. Default brand: " | StorageOwnerAdvisor".
+ */
+export function brandedTitle(
+  prefix: string,
+  max = 60,
+  brand = ' | StorageOwnerAdvisor'
+): string {
+  return clampTitle(prefix, max - brand.length) + brand;
+}
+
+/**
+ * Same as clampTitle but for meta descriptions. Google's SERP description
+ * caps around 155 characters before truncation.
+ */
+export function clampDescription(text: string, max = 155): string {
+  if (!text) return text;
+  if (text.length <= max) return text;
+  const sliced = text.slice(0, max - 1);
+  const lastSpace = sliced.lastIndexOf(' ');
+  const base = lastSpace > max * 0.7 ? sliced.slice(0, lastSpace) : sliced;
+  return base.replace(/[,;:\s]+$/, '') + '…';
+}
+
 // Generates JSON-LD for a vendor
 export function generateVendorJsonLd(vendor: Vendor) {
   return {

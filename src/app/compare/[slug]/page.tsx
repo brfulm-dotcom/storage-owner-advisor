@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { permanentRedirect } from 'next/navigation';
 import { getVendorBySlug, getVendorsByCategory, getCategoryBySlug } from '@/lib/supabase';
 import { Vendor } from '@/lib/supabase';
+import { brandedTitle, clampDescription } from '@/lib/seo';
 import StarRating from '@/components/StarRating';
 
 export const revalidate = 3600;
@@ -54,8 +55,8 @@ export async function generateMetadata(props: ComparePageProps): Promise<Metadat
   const canonicalSlug = [parsed.slug1, parsed.slug2].sort().join('-vs-');
 
   return {
-    title: `${vendor1.name} vs ${vendor2.name} (${year}) | StorageOwnerAdvisor`,
-    description: `Compare ${vendor1.name} and ${vendor2.name} side by side. See features, pricing, ratings, pros & cons to find the best solution for your storage facility.`,
+    title: brandedTitle(`${vendor1.name} vs ${vendor2.name}`),
+    description: clampDescription(`Compare ${vendor1.name} and ${vendor2.name} side by side (${year}). See features, pricing, ratings, pros & cons to find the best solution for your storage facility.`),
     alternates: {
       canonical: `https://www.storageowneradvisor.com/compare/${canonicalSlug}`,
     },
@@ -64,8 +65,8 @@ export async function generateMetadata(props: ComparePageProps): Promise<Metadat
     // substantive editorial commentary to the comparisons.
     robots: { index: false, follow: true },
     openGraph: {
-      title: `${vendor1.name} vs ${vendor2.name} (${year})`,
-      description: `Side-by-side comparison of ${vendor1.name} and ${vendor2.name} for self-storage facilities.`,
+      title: clampDescription(`${vendor1.name} vs ${vendor2.name} (${year})`, 60),
+      description: clampDescription(`Side-by-side comparison of ${vendor1.name} and ${vendor2.name} for self-storage facilities.`),
       type: 'website',
     },
   };

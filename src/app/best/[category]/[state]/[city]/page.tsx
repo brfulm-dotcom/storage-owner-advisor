@@ -9,6 +9,7 @@ import {
   getUniqueCitiesByState,
 } from '@/lib/supabase';
 import VendorCard from '@/components/VendorCard';
+import { brandedTitle, clampDescription, clampTitle } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -99,15 +100,15 @@ export async function generateMetadata(props: CityCategoryPageProps): Promise<Me
   const isThin = localCount + nationalCount < 3;
 
   return {
-    title: `Best ${categoryName} in ${cityName}, ${stateName} (${year}) | StorageOwnerAdvisor`,
-    description: `Compare top ${categoryName.toLowerCase()} providers serving storage facilities in ${cityName}, ${stateName}. Read reviews, compare features, and find the best local solution.`,
+    title: brandedTitle(`Best ${categoryName} in ${cityName}, ${stateName}`),
+    description: clampDescription(`Compare top ${categoryName.toLowerCase()} providers serving storage facilities in ${cityName}, ${stateName} (${year}). Read reviews, compare features, and find the best local solution.`),
     alternates: {
       canonical: `https://www.storageowneradvisor.com/best/${category}/${state}/${city}`,
     },
     robots: isThin ? { index: false, follow: true } : undefined,
     openGraph: {
-      title: `Best ${categoryName} in ${cityName}, ${stateName} (${year})`,
-      description: `Find and compare ${categoryName.toLowerCase()} providers in ${cityName}, ${stateName}.`,
+      title: clampTitle(`Best ${categoryName} in ${cityName}, ${stateName} (${year})`),
+      description: clampDescription(`Find and compare ${categoryName.toLowerCase()} providers in ${cityName}, ${stateName}.`),
       type: 'website',
     },
   };
