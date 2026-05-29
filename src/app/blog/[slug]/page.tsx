@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getBlogPostBySlug, getBlogPostSlugs, getCategoryBySlug } from '@/lib/supabase';
-import { brandedTitle, clampDescription } from '@/lib/seo';
+import { brandedTitle, clampDescription, extractFaqFromContent, generateFaqJsonLd } from '@/lib/seo';
 import { notFound } from 'next/navigation';
 
 export const revalidate = 86400;
@@ -51,6 +51,13 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
 
   const category = post.category_slug ? await getCategoryBySlug(post.category_slug) : null;
 
+  // FAQ JSON-LD: prefer manually-curated faq column; fall back to H2/H3
+  // questions auto-extracted from the post's HTML content.
+  const faqPairs = post.faq && post.faq.length > 0
+    ? post.faq
+    : extractFaqFromContent(post.content);
+  const faqJsonLd = generateFaqJsonLd(faqPairs);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* JSON-LD Structured Data */}
@@ -82,6 +89,12 @@ export default async function BlogPostPage(props: BlogPostPageProps) {
           }),
         }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

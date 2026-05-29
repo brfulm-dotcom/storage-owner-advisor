@@ -165,6 +165,74 @@ export function generateLocalBusinessJsonLd(vendor: Vendor) {
   };
 }
 
+/**
+ * Strip HTML tags and collapse whitespace. Used to clean text extracted from
+ * stored blog content before putting it into structured data.
+ */
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export interface FaqPair {
+  question: string;
+  answer: string;
+}
+
+/**
+ * Find H2 or H3 headings ending with "?" in HTML content and pair each with
+ * the prose that follows it (until the next heading). Used to auto-generate
+ * FAQ schema for posts that already have Q-shaped sections.
+ */
+export function extractFaqFromContent(html: string, max = 10): FaqPair[] {
+  if (!html) return [];
+  const pairs: FaqPair[] = [];
+  // Split on opening H2/H3 tags so each chunk starts with one heading. This
+  // prevents the next regex from matching across multiple headings when an
+  // earlier H2 has no "?" and the engine extends into the next section.
+  const chunks = html.split(/(?=<h[23][^>]*>)/i);
+  const sectionRe = /^<h([23])[^>]*>([\s\S]*?\?)\s*<\/h\1>([\s\S]*)$/i;
+  for (const chunk of chunks) {
+    const m = chunk.match(sectionRe);
+    if (!m) continue;
+    const question = stripHtml(m[2]);
+    const answer = stripHtml(m[3]);
+    if (question && answer && answer.length > 20) {
+      pairs.push({ question, answer });
+      if (pairs.length >= max) break;
+    }
+  }
+  return pairs;
+}
+
+/**
+ * Build FAQPage JSON-LD from an array of Q/A pairs. Returns null if fewer
+ * than 2 pairs (Google won't show rich results for a single Q).
+ */
+export function generateFaqJsonLd(pairs: FaqPair[]) {
+  if (!pairs || pairs.length < 2) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: pairs.map((p) => ({
+      '@type': 'Question',
+      name: p.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: p.answer,
+      },
+    })),
+  };
+}
+
 // Generates JSON-LD for the homepage
 export function generateHomeJsonLd() {
   return {

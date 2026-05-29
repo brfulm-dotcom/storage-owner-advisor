@@ -56,6 +56,7 @@ export interface BlogPost {
   status: 'draft' | 'published';
   published_at?: string | null;
   created_at?: string;
+  faq?: { question: string; answer: string }[];
 }
 
 export interface Vendor {

@@ -82,6 +82,7 @@ interface BlogPost {
   status: 'draft' | 'published';
   published_at: string | null;
   created_at: string;
+  faq: { question: string; answer: string }[] | null;
 }
 
 interface VendorReview {
@@ -191,6 +192,7 @@ export default function AdminPage() {
     featured_image_alt: '',
     meta_description: '',
     status: 'draft' as 'draft' | 'published',
+    faq: [] as { question: string; answer: string }[],
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -599,6 +601,7 @@ export default function AdminPage() {
       featured_image_alt: '',
       meta_description: '',
       status: 'draft',
+      faq: [],
     });
     setShowPostForm(true);
     setShowPreview(false);
@@ -617,6 +620,7 @@ export default function AdminPage() {
       featured_image_alt: post.featured_image_alt || '',
       meta_description: post.meta_description || '',
       status: post.status,
+      faq: post.faq || [],
     });
     setShowPostForm(true);
     setShowPreview(false);
@@ -663,6 +667,7 @@ export default function AdminPage() {
           featured_image: postForm.featured_image || null,
           featured_image_alt: postForm.featured_image_alt || null,
           meta_description: postForm.meta_description || null,
+          faq: postForm.faq.filter(p => p.question.trim() && p.answer.trim()),
           published_at: postForm.status === 'published' && !editingPost.published_at
             ? new Date().toISOString()
             : editingPost.published_at,
@@ -677,6 +682,7 @@ export default function AdminPage() {
           featured_image: postForm.featured_image || null,
           featured_image_alt: postForm.featured_image_alt || null,
           meta_description: postForm.meta_description || null,
+          faq: postForm.faq.filter(p => p.question.trim() && p.answer.trim()),
           published_at: postForm.status === 'published' ? new Date().toISOString() : null,
         });
         alert('Post created!');
@@ -1585,6 +1591,65 @@ export default function AdminPage() {
                           className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="SEO description (max 160 characters)"
                         />
+                      </div>
+
+                      {/* FAQ pairs */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          FAQ Questions <span className="text-gray-400 font-normal">(adds FAQPage schema for AI assistants and People Also Ask)</span>
+                        </label>
+                        <p className="text-xs text-gray-500 mb-2">
+                          Leave blank to auto-extract from H2 questions in your content. Add pairs here to override or to seed posts without H2 questions.
+                        </p>
+                        <div className="space-y-3">
+                          {postForm.faq.map((pair, idx) => (
+                            <div key={idx} className="border border-gray-200 rounded-md p-3 bg-gray-50 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-semibold text-gray-500">Question {idx + 1}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setPostForm(prev => ({
+                                    ...prev,
+                                    faq: prev.faq.filter((_, i) => i !== idx),
+                                  }))}
+                                  className="text-xs text-red-600 hover:text-red-700"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                              <input
+                                type="text"
+                                value={pair.question}
+                                onChange={(e) => setPostForm(prev => ({
+                                  ...prev,
+                                  faq: prev.faq.map((p, i) => i === idx ? { ...p, question: e.target.value } : p),
+                                }))}
+                                placeholder="Question (e.g. How much does climate control cost?)"
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              />
+                              <textarea
+                                value={pair.answer}
+                                onChange={(e) => setPostForm(prev => ({
+                                  ...prev,
+                                  faq: prev.faq.map((p, i) => i === idx ? { ...p, answer: e.target.value } : p),
+                                }))}
+                                rows={3}
+                                placeholder="Answer (plain text, no HTML needed)"
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setPostForm(prev => ({
+                            ...prev,
+                            faq: [...prev.faq, { question: '', answer: '' }],
+                          }))}
+                          className="mt-2 px-3 py-1 text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200"
+                        >
+                          + Add Question
+                        </button>
                       </div>
 
                       {/* Content with Preview toggle */}
