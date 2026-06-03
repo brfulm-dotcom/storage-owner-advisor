@@ -60,13 +60,15 @@ export function generateVendorJsonLd(vendor: Vendor) {
       name: vendor.name,
       url: vendor.website,
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: vendor.rating,
-      reviewCount: vendor.review_count,
-      bestRating: 5,
-      worstRating: 1,
-    },
+    ...(vendor.rating > 0 && vendor.review_count > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: vendor.rating,
+        reviewCount: vendor.review_count,
+        bestRating: 5,
+        worstRating: 1,
+      },
+    }),
     ...(vendor.pricing && {
       offers: {
         '@type': 'Offer',
@@ -155,13 +157,15 @@ export function generateLocalBusinessJsonLd(vendor: Vendor) {
         addressRegion: vendor.state,
       },
     }),
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: vendor.rating,
-      reviewCount: vendor.review_count,
-      bestRating: 5,
-      worstRating: 1,
-    },
+    ...(vendor.rating > 0 && vendor.review_count > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: vendor.rating,
+        reviewCount: vendor.review_count,
+        bestRating: 5,
+        worstRating: 1,
+      },
+    }),
   };
 }
 
