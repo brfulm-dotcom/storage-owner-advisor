@@ -69,12 +69,6 @@ export function generateVendorJsonLd(vendor: Vendor) {
         worstRating: 1,
       },
     }),
-    ...(vendor.pricing && {
-      offers: {
-        '@type': 'Offer',
-        description: vendor.pricing,
-      },
-    }),
   };
 }
 
