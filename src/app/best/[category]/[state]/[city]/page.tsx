@@ -84,20 +84,10 @@ export async function generateMetadata(props: CityCategoryPageProps): Promise<Me
   const categoryName = categoryToReadable(category);
   const year = new Date().getFullYear();
 
-  // Noindex thin pages (fewer than 3 vendors total) so Google doesn't flag
-  // them as low-value content. Links are still followed.
-  const allVendors = await getVendorsByStateAndCategory(stateName, category);
-  const localCount = allVendors.filter(
-    (v) =>
-      v.city?.toLowerCase() === cityName.toLowerCase() &&
-      v.state?.toLowerCase() === stateName.toLowerCase()
-  ).length;
-  const nationalCount = allVendors.filter(
-    (v) =>
-      v.service_area?.toLowerCase() === 'national' &&
-      v.city?.toLowerCase() !== cityName.toLowerCase()
-  ).length;
-  const isThin = localCount + nationalCount < 3;
+  // City-level pages are noindex (follow) across the board. There are
+  // thousands of these near-duplicate combinations, so we keep them crawlable
+  // for internal links but out of the index to avoid a low-value-content
+  // signal. State-level pages remain indexed.
 
   return {
     title: brandedTitle(`Best ${categoryName} in ${cityName}, ${stateName}`),
@@ -105,7 +95,7 @@ export async function generateMetadata(props: CityCategoryPageProps): Promise<Me
     alternates: {
       canonical: `https://www.storageowneradvisor.com/best/${category}/${state}/${city}`,
     },
-    robots: isThin ? { index: false, follow: true } : undefined,
+    robots: { index: false, follow: true },
     openGraph: {
       title: clampTitle(`Best ${categoryName} in ${cityName}, ${stateName} (${year})`),
       description: clampDescription(`Find and compare ${categoryName.toLowerCase()} providers in ${cityName}, ${stateName}.`),

@@ -1,9 +1,10 @@
 // =============================================================
 // SITEMAP GENERATOR (Supabase version)
 // Pulls categories, vendors, and SEO landing-page combinations from
-// the database. Empty/thin combinations are filtered out so we don't
-// submit URLs to Google that the pages themselves mark noindex.
-// Threshold (3 vendors) matches the isThin check in each /best/... page.
+// the database. City-level /best/... pages are intentionally excluded:
+// they are noindex (near-duplicate, very numerous) so they don't belong
+// in the sitemap. Only state-level landing pages are submitted, and only
+// when they clear the thin threshold (3 vendors).
 // =============================================================
 
 import { MetadataRoute } from 'next';
@@ -13,7 +14,6 @@ import {
   getUniqueStates,
   getCategorySlugs,
   getBlogPostSlugs,
-  getUniqueCitiesByState,
   getVendorsByState,
   getVendorsByStateAndCategory,
   type Vendor,
@@ -24,10 +24,6 @@ const THIN_THRESHOLD = 3;
 
 function stateToSlug(state: string): string {
   return state.toLowerCase().replace(/\s+/g, '-');
-}
-
-function cityToSlug(city: string): string {
-  return city.toLowerCase().replace(/\s+/g, '-');
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -71,11 +67,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Pre-fetch the data needed to decide which SEO landing pages have enough
-  // content to be worth indexing. We do this once up front so filtering is
-  // local — same threshold (>=3 vendors) the /best/... pages use to decide
-  // whether to noindex themselves.
-  const [stateVendorEntries, stateCategoryVendorEntries, cityResults] = await Promise.all([
+  // Pre-fetch the data needed to decide which state-level landing pages have
+  // enough content to be worth indexing. Same threshold (>=3 vendors) the
+  // /best/... pages use. City-level pages are noindex and excluded entirely.
+  const [stateVendorEntries, stateCategoryVendorEntries] = await Promise.all([
     Promise.all(
       states.map(async (state) => ({ state, vendors: await getVendorsByState(state) }))
     ),
@@ -87,9 +82,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           vendors: await getVendorsByStateAndCategory(state, cat),
         }))
       )
-    ),
-    Promise.all(
-      states.map(async (state) => ({ state, cities: await getUniqueCitiesByState(state) }))
     ),
   ]);
 
@@ -122,52 +114,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }))
   );
 
-  // City overviews: include only when at least 3 vendors are physically in the city.
-  // Mirrors the localCount check in best/storage-vendors/[state]/[city]/page.tsx.
-  const cityOverviewPages: MetadataRoute.Sitemap = cityResults.flatMap(({ state, cities }) => {
-    const stateVend = stateVendorMap.get(state) ?? [];
-    return cities
-      .filter((city) => {
-        const cityLower = city.toLowerCase();
-        const local = stateVend.filter((v) => v.city?.toLowerCase() === cityLower).length;
-        return local >= THIN_THRESHOLD;
-      })
-      .map((city) => ({
-        url: `${BASE_URL}/best/storage-vendors/${stateToSlug(state)}/${cityToSlug(city)}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.6,
-      }));
-  });
-
-  // City + category combinations: include only when local + national vendors >= 3.
-  // Mirrors the isThin check in best/[category]/[state]/[city]/page.tsx so we
-  // never submit a URL whose page would mark itself noindex.
-  const cityCategoryPages: MetadataRoute.Sitemap = cityResults.flatMap(({ state, cities }) => {
-    const stateLower = state.toLowerCase();
-    return cities.flatMap((city) => {
-      const cityLower = city.toLowerCase();
-      return categorySlugs
-        .filter((cat) => {
-          const all = stateCatVendorMap.get(`${state}|${cat}`) ?? [];
-          const local = all.filter(
-            (v) => v.city?.toLowerCase() === cityLower && v.state?.toLowerCase() === stateLower
-          ).length;
-          const national = all.filter(
-            (v) =>
-              v.service_area?.toLowerCase() === 'national' && v.city?.toLowerCase() !== cityLower
-          ).length;
-          return local + national >= THIN_THRESHOLD;
-        })
-        .map((cat) => ({
-          url: `${BASE_URL}/best/${cat}/${stateToSlug(state)}/${cityToSlug(city)}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.6,
-        }));
-    });
-  });
-
   // Blog post pages
   const blogUrls: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
     url: `${BASE_URL}/blog/${slug}`,
@@ -182,8 +128,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...vendorPages,
     ...stateOverviewPages,
     ...stateCategoryPages,
-    ...cityOverviewPages,
-    ...cityCategoryPages,
     ...blogUrls,
   ];
 }
