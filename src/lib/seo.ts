@@ -49,6 +49,25 @@ export function clampDescription(text: string, max = 155): string {
 
 // Generates JSON-LD for a vendor
 export function generateVendorJsonLd(vendor: Vendor) {
+  const hasRating = vendor.rating > 0 && vendor.review_count > 0;
+
+  // A Product is only valid for rich results when it carries offers, review,
+  // or aggregateRating. We don't emit offers (pricing is freeform) and only
+  // have a rating for some vendors, so vendors without ratings would produce
+  // an invalid Product. Describe those as an Organization instead — valid
+  // without those fields, and more accurate for a company listing. Rated
+  // vendors stay as Product so they keep their star-rating rich snippet.
+  if (!hasRating) {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: vendor.name,
+      description: vendor.short_description,
+      url: `${BASE_URL}/vendor/${vendor.slug}`,
+      ...(vendor.website && { sameAs: [vendor.website] }),
+    };
+  }
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -60,15 +79,13 @@ export function generateVendorJsonLd(vendor: Vendor) {
       name: vendor.name,
       url: vendor.website,
     },
-    ...(vendor.rating > 0 && vendor.review_count > 0 && {
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: vendor.rating,
-        reviewCount: vendor.review_count,
-        bestRating: 5,
-        worstRating: 1,
-      },
-    }),
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: vendor.rating,
+      reviewCount: vendor.review_count,
+      bestRating: 5,
+      worstRating: 1,
+    },
   };
 }
 
